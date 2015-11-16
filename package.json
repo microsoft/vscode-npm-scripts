@@ -1,0 +1,79 @@
+{
+	"name": "npm-script-run",
+	"description": "Support to run npm scripts ",
+	"version": "0.0.1",
+	"publisher": "eg2",
+	"engines": {
+		"vscode": "0.10.1"
+	},
+	"categories": [
+		"Others"
+	],
+	"activationEvents": [
+		"onCommand:npm-script.install",
+		"onCommand:npm-script.run",
+		"onCommand:npm-script.showOutput",
+		"onCommand:npm-script.rerun-last-script"
+	],
+	"main": "./out/src/main",
+	"contributes": {
+		"commands": [
+			{
+				"command": "npm-script.install",
+				"title": "npm install",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.run",
+				"title": "Run script",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.showOutput",
+				"title": "Show output",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.rerun-last-script",
+				"title": "Rerun last script",
+				"category": "npm"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "npm-script.showOutput",
+				"key": "Ctrl+N L",
+				"mac": "Cmd+N L"
+			},
+			{
+				"command": "npm-script.run",
+				"key": "Ctrl+N Shift+R",
+				"mac": "Cmd+N Shift+R"
+			},
+			{
+				"command": "npm-script.rerun-last-script",
+				"key": "Ctrl+N R",
+				"mac": "Cmd+N R"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "npm",
+			"properties": {
+				"npm.runInTerminal": {
+					"type": "boolean",
+					"default": false,
+					"description": "Run commands in a terminal"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+	},
+	"devDependencies": {
+		"typescript": "^1.6.2",
+		"vscode": "0.10.x"
+	}
+}
