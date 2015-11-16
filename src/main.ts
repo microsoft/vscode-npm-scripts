@@ -2,10 +2,10 @@ import * as cp from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColumn} from 'vscode';
+import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColumn, QuickPickItem } from 'vscode';
 import { runInTerminal } from 'run-in-terminal';
 
-interface Script {
+interface Script extends QuickPickItem {
 	label: string;
 	execute(): void;
 	description: string;
@@ -41,7 +41,7 @@ function runNpmScript(): void {
 	if (!scripts) {
 		return;
 	}
-	let scriptList: Script[] = [];	
+	let scriptList: Script[] = [];
 	Object.keys(scripts).forEach(key => {
 		scriptList.push({
 			label: `${key}`,
