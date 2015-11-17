@@ -70,7 +70,7 @@
 			"properties": {
 				"npm.runInTerminal": {
 					"type": "boolean",
-					"default": false,
+					"default": true,
 					"description": "Run commands in a terminal"
 				}
 			}
