@@ -69,8 +69,8 @@ function rerunLastScript(): void {
 function readScripts(): any {
 	let fileName = path.join(workspace.rootPath, 'package.json');
 	try {
-		var contents = fs.readFileSync(fileName).toString();
-		var json = JSON.parse(contents);
+		let contents = fs.readFileSync(fileName).toString();
+		let json = JSON.parse(contents);
 		if (json.scripts) {
 			return json.scripts;
 		}
