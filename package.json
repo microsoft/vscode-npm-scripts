@@ -1,13 +1,21 @@
 {
-	"name": "npm-script-run",
+	"name": "vscode-npm-script",
 	"description": "Support to run npm scripts ",
 	"version": "0.0.1",
 	"publisher": "eg2",
 	"engines": {
-		"vscode": "0.10.1"
+		"vscode": "^0.10.1"
+	},
+	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Microsoft/vscode-npm-scripts.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Microsoft/vscode-npm-scripts/issues"
 	},
 	"categories": [
-		"Others"
+		"Other"
 	],
 	"activationEvents": [
 		"onCommand:npm-script.install",
@@ -20,7 +28,7 @@
 		"commands": [
 			{
 				"command": "npm-script.install",
-				"title": "npm install",
+				"title": "install",
 				"category": "npm"
 			},
 			{

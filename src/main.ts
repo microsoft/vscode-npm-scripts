@@ -6,9 +6,7 @@ import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColum
 import { runInTerminal } from 'run-in-terminal';
 
 interface Script extends QuickPickItem {
-	label: string;
 	execute(): void;
-	description: string;
 }
 
 let outputChannel: OutputChannel;
