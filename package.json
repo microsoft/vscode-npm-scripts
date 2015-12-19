@@ -50,18 +50,18 @@
 		"keybindings": [
 			{
 				"command": "npm-script.showOutput",
-				"key": "Ctrl+N L",
-				"mac": "Cmd+N L"
+				"key": "Ctrl+R L",
+				"mac": "Cmd+R L"
 			},
 			{
 				"command": "npm-script.run",
-				"key": "Ctrl+N Shift+R",
-				"mac": "Cmd+N Shift+R"
+				"key": "Ctrl+R Shift+R",
+				"mac": "Cmd+R Shift+R"
 			},
 			{
 				"command": "npm-script.rerun-last-script",
-				"key": "Ctrl+N R",
-				"mac": "Cmd+N R"
+				"key": "Ctrl+R R",
+				"mac": "Cmd+R R"
 			}
 		],
 		"configuration": {
