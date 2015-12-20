@@ -1,7 +1,7 @@
 {
 	"name": "vscode-npm-script",
 	"description": "Support to run npm scripts ",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"publisher": "eg2",
 	"engines": {
 		"vscode": "^0.10.1"
@@ -83,5 +83,8 @@
 	"devDependencies": {
 		"typescript": "^1.6.2",
 		"vscode": "0.10.x"
-	}
+	},
+    "dependencies": {
+        "run-in-terminal": "^0.0.2"
+    }
 }
