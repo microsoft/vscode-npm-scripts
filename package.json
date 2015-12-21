@@ -1,7 +1,7 @@
 {
 	"name": "vscode-npm-script",
 	"description": "Support to run npm scripts ",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"publisher": "eg2",
 	"engines": {
 		"vscode": "^0.10.1"

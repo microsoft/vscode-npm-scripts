@@ -22,3 +22,7 @@ in a terminal window or whether the output form the command is shown in the `Out
 ## Keyboard Shortcuts
 
 The extension defines a chording keyboard shortcut for the `R` key. As a consequence an existing keybinding for `R` is not executed immediately. If this is not desired, then please bind another key for these commands, see the [customization](https://code.visualstudio.com/docs/customization/keybindings) documentation.
+
+## Release Notes
+
+- 0.0.4 the keybinding was changed from `R` to `N` to avoid conflicts with the default `workbench.action.files.newUntitledFile` command. 
