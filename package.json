@@ -1,7 +1,8 @@
 {
 	"name": "vscode-npm-script",
-	"description": "Support to run npm scripts ",
-	"version": "0.0.4",
+	"description": "Run npm scripts from the Command Palette",
+    "displayName": "Run npm Scripts",
+	"version": "0.0.5",
 	"publisher": "eg2",
 	"engines": {
 		"vscode": "^0.10.1"
