@@ -25,4 +25,5 @@ The extension defines a chording keyboard shortcut for the `R` key. As a consequ
 
 ## Release Notes
 
-- 0.0.4 the keybinding was changed from `R` to `N` to avoid conflicts with the default `workbench.action.files.newUntitledFile` command. 
+- 0.0.7 adding an icon and changed the display name to 'NPM Script Runner'.
+- 0.0.4 the keybinding was changed from `R` to `N` to avoid conflicts with the default `workbench.action.files.newUntitledFile` command.
