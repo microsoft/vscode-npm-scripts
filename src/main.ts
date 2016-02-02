@@ -4,8 +4,11 @@ import * as fs from 'fs';
 
 import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColumn, QuickPickItem } from 'vscode';
 import { runInTerminal } from 'run-in-terminal';
+import { glob} from 'glob';
 
 interface Script extends QuickPickItem {
+    scriptName: string;
+    cwd: string;
 	execute(): void;
 }
 
@@ -40,19 +43,26 @@ function runNpmScript(): void {
 		return;
 	}
 	let scriptList: Script[] = [];
-	Object.keys(scripts).forEach(key => {
-		scriptList.push({
-			label: `${key}`,
-			description: `${scripts[key]}`,
-			execute() {
+    for (let s of scripts) {
+        let label = s.name;
+        if (s.relativePath) {
+            label = `${s.relativePath}: ${label}`;
+        }
+        scriptList.push({
+            label: label,
+            description: s.cmd,
+            scriptName: s.name,
+            cwd: s.absolutePath,
+            execute() {
 				lastScript = this;
-				runNpmCommand(['run-script', key]);
+				runNpmCommand(['run-script', this.scriptName], this.cwd);
 			}
-		});
-	});
+        });
+    }
 
 	window.showQuickPick(scriptList).then(script => {
 		if (script) {
+            debugger;
 			return script.execute();
 		}
 	});
@@ -67,32 +77,55 @@ function rerunLastScript(): void {
 }
 
 function readScripts(): any {
-	let fileName = path.join(workspace.rootPath, 'package.json');
-	try {
-		let contents = fs.readFileSync(fileName).toString();
-		let json = JSON.parse(contents);
-		if (json.scripts) {
-			return json.scripts;
-		}
-		window.showInformationMessage('No scripts are defined in \'package.json\'');
-		return undefined;
-	} catch(e) {
-		window.showInformationMessage('Cannot read \'package.json\'');
-		return undefined;
-	}
+    let fileNames = getPackageFileNames();
+    let scripts = [];
+    
+    for (let fileName of fileNames) {
+        try {
+            let contents = fs.readFileSync(fileName).toString();
+            let json = JSON.parse(contents);
+            if (json.scripts) {
+                let jsonScripts = json.scripts;
+                let absolutePath = fileName.substring(0, fileName.lastIndexOf('/'));
+                let relativePath = absolutePath.substring(workspace.rootPath.length + 1); 
+                Object.keys(jsonScripts).forEach(key => {
+                    scripts.push({
+                        absolutePath: absolutePath,
+                        relativePath: relativePath,
+                        name: `${key}`,
+                        cmd: `${jsonScripts[key]}`
+                    });
+                });
+            }
+        } catch(e) {
+            window.showInformationMessage(`Cannot read '${fileName}'`);
+            return undefined;
+        }
+    }
+    
+    if (scripts.length === 0) {
+        window.showInformationMessage('No scripts are defined');
+        return undefined;
+    }
+    
+    return scripts;
 }
 
-function runNpmCommand(args: string[]): void {
+function runNpmCommand(args: string[], cwd?: string): void {
+    if (!cwd) {
+        cwd = workspace.rootPath;
+    }
+    
 	if (useTerminal()) {
-		runCommandInTerminal(args);
+		runCommandInTerminal(args, cwd);
 	} else {
-		runCommandInOutputWindow(args);
+		runCommandInOutputWindow(args, cwd);
 	}
 }
 
-function runCommandInOutputWindow(args: string[]) {
+function runCommandInOutputWindow(args: string[], cwd: string) {
 	let cmd = 'npm ' + args.join(' ');
-	let p = cp.exec(cmd, { cwd: workspace.rootPath, env: process.env });
+	let p = cp.exec(cmd, { cwd: cwd, env: process.env });
 	p.stderr.on('data', (data: string) => {
 		outputChannel.append(data);
 	});
@@ -102,10 +135,25 @@ function runCommandInOutputWindow(args: string[]) {
 	showNpmOutput();
 }
 
-function runCommandInTerminal(args: string[]): void {
-	runInTerminal('npm', args, { cwd: workspace.rootPath, env: process.env });
+function runCommandInTerminal(args: string[], cwd: string): void {
+	runInTerminal('npm', args, { cwd: cwd, env: process.env });
 }
 
 function useTerminal() {
 	return workspace.getConfiguration('npm')['runInTerminal'];
+}
+
+function getPackageFileNames(): any {
+    try {
+        let includePattern = `${workspace.rootPath}/**/package.json`;
+        let ignorePatterns = [
+            `${workspace.rootPath}/node_modules/**/package.json`,
+            `${workspace.rootPath}/**/node_modules/**/package.json`
+        ];
+        let files = glob.sync(includePattern, { ignore: ignorePatterns });
+        return files;
+    } catch(e) {
+        window.showInformationMessage('Unable to look for \'package.json\' files');
+        return undefined;
+    }
 }
