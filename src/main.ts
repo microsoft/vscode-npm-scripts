@@ -4,7 +4,6 @@ import * as fs from 'fs';
 
 import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColumn, QuickPickItem } from 'vscode';
 import { runInTerminal } from 'run-in-terminal';
-import { glob} from 'glob';
 
 interface Script extends QuickPickItem {
     scriptName: string;
@@ -30,7 +29,10 @@ function registerCommands(context: ExtensionContext) {
 }
 
 function runNpmInstall() {
-	runNpmCommand(['install']);
+    let dirs = getIncludedDirectories();
+    for (let dir of dirs) {
+        runNpmCommand(['install'], dir);
+    }
 }
 
 function showNpmOutput(): void {
@@ -62,7 +64,6 @@ function runNpmScript(): void {
 
 	window.showQuickPick(scriptList).then(script => {
 		if (script) {
-            debugger;
 			return script.execute();
 		}
 	});
@@ -77,16 +78,16 @@ function rerunLastScript(): void {
 }
 
 function readScripts(): any {
-    let fileNames = getPackageFileNames();
+    let includedDirectories = getIncludedDirectories();
     let scripts = [];
     
-    for (let fileName of fileNames) {
+    for (let dir of includedDirectories) {
         try {
-            let contents = fs.readFileSync(fileName).toString();
+            let contents = fs.readFileSync(path.join(dir, 'package.json')).toString();
             let json = JSON.parse(contents);
             if (json.scripts) {
                 let jsonScripts = json.scripts;
-                let absolutePath = fileName.substring(0, fileName.lastIndexOf('/'));
+                let absolutePath = dir;
                 let relativePath = absolutePath.substring(workspace.rootPath.length + 1); 
                 Object.keys(jsonScripts).forEach(key => {
                     scripts.push({
@@ -98,7 +99,7 @@ function readScripts(): any {
                 });
             }
         } catch(e) {
-            window.showInformationMessage(`Cannot read '${fileName}'`);
+            window.showInformationMessage(`Cannot read 'package.json' file in '${fileName}'`);
             return undefined;
         }
     }
@@ -143,17 +144,15 @@ function useTerminal() {
 	return workspace.getConfiguration('npm')['runInTerminal'];
 }
 
-function getPackageFileNames(): any {
-    try {
-        let includePattern = `${workspace.rootPath}/**/package.json`;
-        let ignorePatterns = [
-            `${workspace.rootPath}/node_modules/**/package.json`,
-            `${workspace.rootPath}/**/node_modules/**/package.json`
-        ];
-        let files = glob.sync(includePattern, { ignore: ignorePatterns });
-        return files;
-    } catch(e) {
-        window.showInformationMessage('Unable to look for \'package.json\' files');
-        return undefined;
+function getIncludedDirectories() {
+    let dirs = [];
+    dirs.push(workspace.rootPath);
+    
+    if (workspace.getConfiguration('npm')['includeDirectories'].length > 0) {
+        for (let dir of workspace.getConfiguration('npm')['includeDirectories']) {
+            dirs.push(path.join(workspace.rootPath, dir));
+        }
     }
+    
+    return dirs;
 }

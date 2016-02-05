@@ -74,6 +74,11 @@
           "type": "boolean",
           "default": true,
           "description": "Run commands in a terminal"
+        },
+        "npm.includeDirectories": {
+          "type": "array",
+          "default": [],
+          "description": "Look for 'package.json' files in these directories"
         }
       }
     }
@@ -87,7 +92,6 @@
     "vscode": "0.10.x"
   },
   "dependencies": {
-    "glob": "^6.0.4",
     "run-in-terminal": "^0.0.2"
   }
 }
