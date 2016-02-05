@@ -99,7 +99,7 @@ function readScripts(): any {
                 });
             }
         } catch(e) {
-            window.showInformationMessage(`Cannot read 'package.json' file in '${fileName}'`);
+            window.showInformationMessage(`Cannot read 'package.json' file in '${dir}'`);
             return undefined;
         }
     }
