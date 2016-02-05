@@ -1,92 +1,97 @@
 {
-	"name": "vscode-npm-script",
-	"description": "Run npm scripts from the Command Palette",
-    "displayName": "npm Script Runner",
-	"version": "0.0.8",
-	"publisher": "eg2",
-    "icon": "npm_icon.png",
-	"engines": {
-		"vscode": "^0.10.1"
-	},
-	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-npm-scripts.git"
-	},
-	"bugs": {
-		"url": "https://github.com/Microsoft/vscode-npm-scripts/issues"
-	},
-	"categories": [
-		"Other"
+  "name": "vscode-npm-script",
+  "description": "Run npm scripts from the Command Palette",
+  "displayName": "npm Script Runner",
+  "version": "0.0.8",
+  "publisher": "eg2",
+  "icon": "npm_icon.png",
+  "engines": {
+	"vscode": "^0.10.1"
+  },
+  "homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
+  "repository": {
+	"type": "git",
+	"url": "https://github.com/Microsoft/vscode-npm-scripts.git"
+  },
+  "bugs": {
+	"url": "https://github.com/Microsoft/vscode-npm-scripts/issues"
+  },
+  "categories": [
+	"Other"
+  ],
+  "activationEvents": [
+	"onCommand:npm-script.install",
+	"onCommand:npm-script.run",
+	"onCommand:npm-script.showOutput",
+	"onCommand:npm-script.rerun-last-script"
+  ],
+  "main": "./out/src/main",
+  "contributes": {
+	"commands": [
+	  {
+		"command": "npm-script.install",
+		"title": "install",
+		"category": "npm"
+	  },
+	  {
+		"command": "npm-script.run",
+		"title": "Run script",
+		"category": "npm"
+	  },
+	  {
+		"command": "npm-script.showOutput",
+		"title": "Show output",
+		"category": "npm"
+	  },
+	  {
+		"command": "npm-script.rerun-last-script",
+		"title": "Rerun last script",
+		"category": "npm"
+	  }
 	],
-	"activationEvents": [
-		"onCommand:npm-script.install",
-		"onCommand:npm-script.run",
-		"onCommand:npm-script.showOutput",
-		"onCommand:npm-script.rerun-last-script"
+	"keybindings": [
+	  {
+		"command": "npm-script.showOutput",
+		"key": "Ctrl+R L",
+		"mac": "Cmd+R L"
+	  },
+	  {
+		"command": "npm-script.run",
+		"key": "Ctrl+R Shift+R",
+		"mac": "Cmd+R Shift+R"
+	  },
+	  {
+		"command": "npm-script.rerun-last-script",
+		"key": "Ctrl+R R",
+		"mac": "Cmd+R R"
+	  }
 	],
-	"main": "./out/src/main",
-	"contributes": {
-		"commands": [
-			{
-				"command": "npm-script.install",
-				"title": "install",
-				"category": "npm"
-			},
-			{
-				"command": "npm-script.run",
-				"title": "Run script",
-				"category": "npm"
-			},
-			{
-				"command": "npm-script.showOutput",
-				"title": "Show output",
-				"category": "npm"
-			},
-			{
-				"command": "npm-script.rerun-last-script",
-				"title": "Rerun last script",
-				"category": "npm"
-			}
-		],
-		"keybindings": [
-			{
-				"command": "npm-script.showOutput",
-				"key": "Ctrl+R L",
-				"mac": "Cmd+R L"
-			},
-			{
-				"command": "npm-script.run",
-				"key": "Ctrl+R Shift+R",
-				"mac": "Cmd+R Shift+R"
-			},
-			{
-				"command": "npm-script.rerun-last-script",
-				"key": "Ctrl+R R",
-				"mac": "Cmd+R R"
-			}
-		],
-		"configuration": {
-			"type": "object",
-			"title": "npm",
-			"properties": {
-				"npm.runInTerminal": {
-					"type": "boolean",
-					"default": true,
-					"description": "Run commands in a terminal"
-				}
-			}
+	"configuration": {
+	  "type": "object",
+	  "title": "npm",
+	  "properties": {
+		"npm.runInTerminal": {
+		  "type": "boolean",
+		  "default": true,
+		  "description": "Run commands in a terminal"
+		},
+		"npm.includeDirectories": {
+		  "type": "array",
+		  "default": [],
+		  "description": "Look for 'package.json' files in these directories"
 		}
-	},
-	"scripts": {
-		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
-	},
-	"devDependencies": {
-		"typescript": "^1.6.2",
-		"vscode": "0.10.x"
-	},
-    "dependencies": {
-        "run-in-terminal": "^0.0.2"
-    }
+	  }
+	}
+  },
+  "scripts": {
+	"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+	"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+  },
+  "devDependencies": {
+	"typescript": "^1.6.2",
+	"vscode": "0.10.x"
+  },
+  "dependencies": {
+	"run-in-terminal": "^0.0.2"
+  }
 }

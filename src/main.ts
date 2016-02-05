@@ -6,6 +6,8 @@ import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColum
 import { runInTerminal } from 'run-in-terminal';
 
 interface Script extends QuickPickItem {
+	scriptName: string;
+	cwd: string;
 	execute(): void;
 }
 
@@ -27,7 +29,10 @@ function registerCommands(context: ExtensionContext) {
 }
 
 function runNpmInstall() {
-	runNpmCommand(['install']);
+	let dirs = getIncludedDirectories();
+	for (let dir of dirs) {
+		runNpmCommand(['install'], dir);
+	}
 }
 
 function showNpmOutput(): void {
@@ -40,16 +45,22 @@ function runNpmScript(): void {
 		return;
 	}
 	let scriptList: Script[] = [];
-	Object.keys(scripts).forEach(key => {
+	for (let s of scripts) {
+		let label = s.name;
+		if (s.relativePath) {
+			label = `${s.relativePath}: ${label}`;
+		}
 		scriptList.push({
-			label: `${key}`,
-			description: `${scripts[key]}`,
+			label: label,
+			description: s.cmd,
+			scriptName: s.name,
+			cwd: s.absolutePath,
 			execute() {
 				lastScript = this;
-				runNpmCommand(['run-script', key]);
+				runNpmCommand(['run-script', this.scriptName], this.cwd);
 			}
 		});
-	});
+	}
 
 	window.showQuickPick(scriptList).then(script => {
 		if (script) {
@@ -67,32 +78,55 @@ function rerunLastScript(): void {
 }
 
 function readScripts(): any {
-	let fileName = path.join(workspace.rootPath, 'package.json');
-	try {
-		let contents = fs.readFileSync(fileName).toString();
-		let json = JSON.parse(contents);
-		if (json.scripts) {
-			return json.scripts;
+	let includedDirectories = getIncludedDirectories();
+	let scripts = [];
+
+	for (let dir of includedDirectories) {
+		try {
+			let contents = fs.readFileSync(path.join(dir, 'package.json')).toString();
+			let json = JSON.parse(contents);
+			if (json.scripts) {
+				let jsonScripts = json.scripts;
+				let absolutePath = dir;
+				let relativePath = absolutePath.substring(workspace.rootPath.length + 1);
+				Object.keys(jsonScripts).forEach(key => {
+					scripts.push({
+						absolutePath: absolutePath,
+						relativePath: relativePath,
+						name: `${key}`,
+						cmd: `${jsonScripts[key]}`
+					});
+				});
+			}
+		} catch(e) {
+			window.showInformationMessage(`Cannot read 'package.json' file in '${dir}'`);
+			return undefined;
 		}
-		window.showInformationMessage('No scripts are defined in \'package.json\'');
-		return undefined;
-	} catch(e) {
-		window.showInformationMessage('Cannot read \'package.json\'');
+	}
+
+	if (scripts.length === 0) {
+		window.showInformationMessage('No scripts are defined');
 		return undefined;
 	}
+
+	return scripts;
 }
 
-function runNpmCommand(args: string[]): void {
+function runNpmCommand(args: string[], cwd?: string): void {
+	if (!cwd) {
+		cwd = workspace.rootPath;
+	}
+
 	if (useTerminal()) {
-		runCommandInTerminal(args);
+		runCommandInTerminal(args, cwd);
 	} else {
-		runCommandInOutputWindow(args);
+		runCommandInOutputWindow(args, cwd);
 	}
 }
 
-function runCommandInOutputWindow(args: string[]) {
+function runCommandInOutputWindow(args: string[], cwd: string) {
 	let cmd = 'npm ' + args.join(' ');
-	let p = cp.exec(cmd, { cwd: workspace.rootPath, env: process.env });
+	let p = cp.exec(cmd, { cwd: cwd, env: process.env });
 	p.stderr.on('data', (data: string) => {
 		outputChannel.append(data);
 	});
@@ -102,10 +136,23 @@ function runCommandInOutputWindow(args: string[]) {
 	showNpmOutput();
 }
 
-function runCommandInTerminal(args: string[]): void {
-	runInTerminal('npm', args, { cwd: workspace.rootPath, env: process.env });
+function runCommandInTerminal(args: string[], cwd: string): void {
+	runInTerminal('npm', args, { cwd: cwd, env: process.env });
 }
 
 function useTerminal() {
 	return workspace.getConfiguration('npm')['runInTerminal'];
+}
+
+function getIncludedDirectories() {
+	let dirs = [];
+	dirs.push(workspace.rootPath);
+
+	if (workspace.getConfiguration('npm')['includeDirectories'].length > 0) {
+		for (let dir of workspace.getConfiguration('npm')['includeDirectories']) {
+			dirs.push(path.join(workspace.rootPath, dir));
+		}
+	}
+
+	return dirs;
 }
