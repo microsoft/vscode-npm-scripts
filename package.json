@@ -2,11 +2,11 @@
 	"name": "vscode-npm-script",
 	"description": "Run npm scripts from the Command Palette",
 	"displayName": "npm Script Runner",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
-		"vscode": "^0.10.1"
+		"vscode": "^0.10.6"
 	},
 	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
 	"repository": {

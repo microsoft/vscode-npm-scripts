@@ -81,15 +81,16 @@ function readScripts(): any {
 	let includedDirectories = getIncludedDirectories();
 	let scripts = [];
 	let fileName = "";
-	for (let dir of includedDirectories) {
+	let dir: string;
+	for (dir of includedDirectories) {
 		try {
 			fileName = path.join(dir, 'package.json');
 			let contents = fs.readFileSync(fileName).toString();
 			let json = JSON.parse(contents);
 			if (json.scripts) {
-				let jsonScripts = json.scripts;
-				let absolutePath = dir;
-				let relativePath = absolutePath.substring(workspace.rootPath.length + 1);
+				var jsonScripts = json.scripts;
+				var absolutePath = dir;
+				var relativePath = absolutePath.substring(workspace.rootPath.length + 1);
 				Object.keys(jsonScripts).forEach(key => {
 					scripts.push({
 						absolutePath: absolutePath,
