@@ -24,10 +24,10 @@ in a terminal window or whether the output form the command is shown in the `Out
 ```javascript
 {
 	"npm.runInTerminal": false,
-    "npm.includeDirectories": [
-        "subdir1/path",
-        "subdir2/path"
-    ]
+	"npm.includeDirectories": [
+		"subdir1/path",
+		"subdir2/path"
+	]
 }
 ```
 
