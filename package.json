@@ -23,7 +23,8 @@
 		"onCommand:npm-script.install",
 		"onCommand:npm-script.run",
 		"onCommand:npm-script.showOutput",
-		"onCommand:npm-script.rerun-last-script"
+		"onCommand:npm-script.rerun-last-script",
+		"onCommand:npm-script.test"
 	],
 	"main": "./out/src/main",
 	"contributes": {
@@ -46,6 +47,11 @@
 			{
 				"command": "npm-script.rerun-last-script",
 				"title": "Rerun last script",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.test",
+				"title": "test",
 				"category": "npm"
 			}
 		],
