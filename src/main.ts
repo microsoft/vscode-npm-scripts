@@ -148,7 +148,10 @@ function useTerminal() {
 
 function getIncludedDirectories() {
 	let dirs = [];
-	dirs.push(workspace.rootPath);
+
+	if (workspace.getConfiguration('npm')['useRootDirectory'] !== false) {
+		dirs.push(workspace.rootPath);
+	}
 
 	if (workspace.getConfiguration('npm')['includeDirectories'].length > 0) {
 		for (let dir of workspace.getConfiguration('npm')['includeDirectories']) {

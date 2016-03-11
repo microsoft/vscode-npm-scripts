@@ -19,6 +19,7 @@ The commands defined by this extensions are in the `npm` category.
 - With the setting `npm.runInTerminal` you configure whether the command is run
 in a terminal window or whether the output form the command is shown in the `Output` window.
 - If you have a subdirectory in your project with its own `package.json` file you can add it to the setting `npm.includeDirectories`.
+- If your root directory does not happen to contain `package.json` you can set `npm.useRootDirectory` to false to ignore the root directory.
 
 ##### Example
 ```javascript

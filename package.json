@@ -79,6 +79,11 @@
 					"type": "array",
 					"default": [],
 					"description": "Look for 'package.json' files in these directories"
+				},
+				"npm.useRootDirectory": {
+					"type": "boolean",
+					"default": true,
+					"description": "Look for 'package.json' in the root directory of the workspace"
 				}
 			}
 		}
