@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "Run npm scripts from the Command Palette",
 	"displayName": "npm Script Runner",
-	"version": "0.0.10",
+	"version": "0.0.11",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
@@ -70,6 +70,11 @@
 				"command": "npm-script.rerun-last-script",
 				"key": "Ctrl+R R",
 				"mac": "Cmd+R R"
+			},
+			{
+				"command": "npm-script.test",
+				"key": "Ctrl+R T",
+				"mac": "Cmd+R T"
 			}
 		],
 		"configuration": {
