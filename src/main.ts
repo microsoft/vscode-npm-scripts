@@ -21,11 +21,12 @@ export function activate(context: ExtensionContext) {
 }
 
 function registerCommands(context: ExtensionContext) {
-	let c1 = commands.registerCommand('npm-script.showOutput', showNpmOutput);
-	let c2 = commands.registerCommand('npm-script.install', runNpmInstall);
+	let c1 = commands.registerCommand('npm-script.install', runNpmInstall);
+	let c2 = commands.registerCommand('npm-script.test', runNpmTest);
 	let c3 = commands.registerCommand('npm-script.run', runNpmScript);
-	let c4 = commands.registerCommand('npm-script.rerun-last-script', rerunLastScript);
-	context.subscriptions.push(c1, c2, c3, c4);
+	let c4 = commands.registerCommand('npm-script.showOutput', showNpmOutput);
+	let c5 = commands.registerCommand('npm-script.rerun-last-script', rerunLastScript);
+	context.subscriptions.push(c1, c2, c3, c4, c5);
 }
 
 function runNpmInstall() {
@@ -33,6 +34,10 @@ function runNpmInstall() {
 	for (let dir of dirs) {
 		runNpmCommand(['install'], dir);
 	}
+}
+
+function runNpmTest() {
+	runNpmCommand(['test']);
 }
 
 function showNpmOutput(): void {
