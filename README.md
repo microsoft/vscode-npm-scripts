@@ -19,6 +19,7 @@ The commands defined by this extensions are in the `npm` category.
 - With the setting `npm.runInTerminal` you configure whether the command is run
 in a terminal window or whether the output form the command is shown in the `Output` window.
 - If you have a subdirectory in your project with its own `package.json` file you can add it to the setting `npm.includeDirectories`.
+- If your root directory does not happen to contain `package.json` you can set `npm.useRootDirectory` to false to ignore the root directory.
 
 ##### Example
 ```javascript
@@ -37,6 +38,7 @@ The extension defines a chording keyboard shortcut for the `R` key. As a consequ
 
 ## Release Notes
 
+- 0.0.12 added support for `npm.useRootDirectory`
 - 0.0.11 added command to run `npm test`.
 - 0.0.7 adding an icon and changed the display name to 'npm Script Runner'.
 - 0.0.4 the keybinding was changed from `R` to `N` to avoid conflicts with the default `workbench.action.files.newUntitledFile` command.

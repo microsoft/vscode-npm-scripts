@@ -7,11 +7,17 @@
 		"no-unused-variable": true,
 		"curly": true,
 		"class-name": true,
-		"semicolon": true,
+		"semicolon": [
+			true,
+			"always"
+		],
 		"no-unnecessary-semicolons": true,
 		"triple-equals": true,
 		"no-duplicate-case": true,
 		"no-trailing-whitespace": true,
-		"indent": [true, "tabs"]
+		"indent": [
+			true,
+			"tabs"
+		]
 	}
 }
