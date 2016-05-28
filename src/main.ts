@@ -178,7 +178,7 @@ function runCommandInOutputWindow(args: string[], cwd: string) {
 		runningProcesses.delete(p.pid);
 
 		if(signal == 'SIGTERM') {
-			outputChannel.appendLine('Successfuly killed process');
+			outputChannel.appendLine('Successfully killed process');
 			outputChannel.appendLine('-----------------------');
 			outputChannel.appendLine('');
 		} else {
