@@ -26,7 +26,8 @@ function registerCommands(context: ExtensionContext) {
 	let c3 = commands.registerCommand('npm-script.run', runNpmScript);
 	let c4 = commands.registerCommand('npm-script.showOutput', showNpmOutput);
 	let c5 = commands.registerCommand('npm-script.rerun-last-script', rerunLastScript);
-	context.subscriptions.push(c1, c2, c3, c4, c5);
+	let c6 = commands.registerCommand('npm-script.build', runNpmBuild);
+	context.subscriptions.push(c1, c2, c3, c4, c5, c6);
 }
 
 function runNpmInstall() {
@@ -38,6 +39,10 @@ function runNpmInstall() {
 
 function runNpmTest() {
 	runNpmCommand(['test']);
+}
+
+function runNpmBuild() {
+	runNpmCommand(['run-script', 'build']);
 }
 
 function showNpmOutput(): void {
@@ -120,15 +125,17 @@ function readScripts(): any {
 }
 
 function runNpmCommand(args: string[], cwd?: string): void {
-	if (!cwd) {
-		cwd = workspace.rootPath;
-	}
+	workspace.saveAll().then(() => {
+		if (!cwd) {
+			cwd = workspace.rootPath;
+		}
 
-	if (useTerminal()) {
-		runCommandInTerminal(args, cwd);
-	} else {
-		runCommandInOutputWindow(args, cwd);
-	}
+		if (useTerminal()) {
+			runCommandInTerminal(args, cwd);
+		} else {
+			runCommandInOutputWindow(args, cwd);
+		}
+	});
 }
 
 function runCommandInOutputWindow(args: string[], cwd: string) {

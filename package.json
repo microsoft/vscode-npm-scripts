@@ -24,7 +24,8 @@
 		"onCommand:npm-script.run",
 		"onCommand:npm-script.showOutput",
 		"onCommand:npm-script.rerun-last-script",
-		"onCommand:npm-script.test"
+		"onCommand:npm-script.test",
+		"onCommand:npm-script.build"
 	],
 	"main": "./out/src/main",
 	"contributes": {
@@ -52,6 +53,11 @@
 			{
 				"command": "npm-script.test",
 				"title": "test",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.build",
+				"title": "build",
 				"category": "npm"
 			}
 		],
