@@ -24,6 +24,7 @@
 		"onCommand:npm-script.run",
 		"onCommand:npm-script.showOutput",
 		"onCommand:npm-script.rerun-last-script",
+		"onCommand:npm-script.terminate-script",
 		"onCommand:npm-script.test",
 		"onCommand:npm-script.build"
 	],
@@ -33,6 +34,11 @@
 			{
 				"command": "npm-script.install",
 				"title": "install",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.terminate-script",
+				"title": "Terminate script",
 				"category": "npm"
 			},
 			{
@@ -78,6 +84,11 @@
 				"mac": "Cmd+R R"
 			},
 			{
+				"command": "npm-script.terminate-script",
+				"key": "Ctrl+R Shift+X",
+				"mac": "Cmd+R Shift+X"
+			},
+			{
 				"command": "npm-script.test",
 				"key": "Ctrl+R T",
 				"mac": "Cmd+R T"
@@ -117,6 +128,7 @@
 		"tslint": "3.3.0"
 	},
 	"dependencies": {
-		"run-in-terminal": "^0.0.2"
+		"run-in-terminal": "^0.0.2",
+		"tree-kill": "^1.1.0"
 	}
 }

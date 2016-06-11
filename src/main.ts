@@ -4,12 +4,24 @@ import * as fs from 'fs';
 
 import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColumn, QuickPickItem } from 'vscode';
 import { runInTerminal } from 'run-in-terminal';
+import * as kill from 'tree-kill';
 
 interface Script extends QuickPickItem {
 	scriptName: string;
 	cwd: string;
 	execute(): void;
 }
+
+interface Process {
+	process: cp.ChildProcess,
+	cmd: string
+}
+
+class ProcessItem implements QuickPickItem {
+	constructor (public label: string, public description: string, public pid: number) {}
+}
+
+const runningProcesses: Map<number, Process> = new Map();
 
 let outputChannel: OutputChannel;
 let lastScript: Script = null;
@@ -27,7 +39,8 @@ function registerCommands(context: ExtensionContext) {
 	let c4 = commands.registerCommand('npm-script.showOutput', showNpmOutput);
 	let c5 = commands.registerCommand('npm-script.rerun-last-script', rerunLastScript);
 	let c6 = commands.registerCommand('npm-script.build', runNpmBuild);
-	context.subscriptions.push(c1, c2, c3, c4, c5, c6);
+	let c7 = commands.registerCommand('npm-script.terminate-script', terminateScript);
+	context.subscriptions.push(c1, c2, c3, c4, c5, c6, c7);
 }
 
 function runNpmInstall() {
@@ -87,6 +100,27 @@ function rerunLastScript(): void {
 	}
 }
 
+function terminateScript(): void {
+	if(useTerminal()) {
+		window.showInformationMessage('Killing is only supported when the setting "runInTerminal" is "false"')
+	} else {
+		let items: ProcessItem[] = [];
+
+		runningProcesses.forEach((value) => {
+			items.push(new ProcessItem(value.cmd, `kill the process ${value.process.pid}`, value.process.pid))
+		});
+
+		window.showQuickPick(items).then((value) => {
+			if(value) {
+				outputChannel.appendLine('');
+				outputChannel.appendLine(`Killing process ${value.label} (pid: ${value.pid})`);
+				outputChannel.appendLine('');
+				kill(value.pid, 'SIGTERM');
+			}
+		});
+	}
+}
+
 function readScripts(): any {
 	let includedDirectories = getIncludedDirectories();
 	let scripts = [];
@@ -141,12 +175,28 @@ function runNpmCommand(args: string[], cwd?: string): void {
 function runCommandInOutputWindow(args: string[], cwd: string) {
 	let cmd = 'npm ' + args.join(' ');
 	let p = cp.exec(cmd, { cwd: cwd, env: process.env });
+
+	runningProcesses.set(p.pid, { process: p, cmd: cmd })
+
 	p.stderr.on('data', (data: string) => {
 		outputChannel.append(data);
 	});
 	p.stdout.on('data', (data: string) => {
 		outputChannel.append(data);
 	});
+	p.on('exit', (code, signal) => {
+		runningProcesses.delete(p.pid);
+
+		if(signal == 'SIGTERM') {
+			outputChannel.appendLine('Successfully killed process');
+			outputChannel.appendLine('-----------------------');
+			outputChannel.appendLine('');
+		} else {
+			outputChannel.appendLine('-----------------------');
+			outputChannel.appendLine('');
+		}
+	});
+
 	showNpmOutput();
 }
 
