@@ -7,6 +7,7 @@ This extension supports running scripts defined in the `package.json` file.
 - Run a script (`npm run-script`) defined in the `package.json` by picking a script
 defined in the `scripts` section of the `package.json`.
 - Rerun the last npm script you have executed using this extension.
+- Terminate a running script
 
 ## Using
 
@@ -38,6 +39,7 @@ The extension defines a chording keyboard shortcut for the `R` key. As a consequ
 
 ## Release Notes
 
+- 0.0.14 added command to terminate a running script
 - 0.0.13 save workspace before running scripts, added command to run `npm run build`
 - 0.0.12 added support for `npm.useRootDirectory`
 - 0.0.11 added command to run `npm test`.
