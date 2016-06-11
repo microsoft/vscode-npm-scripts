@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "Run npm scripts from the Command Palette",
 	"displayName": "npm Script Runner",
-	"version": "0.0.12",
+	"version": "0.0.13",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
@@ -37,17 +37,17 @@
 			},
 			{
 				"command": "npm-script.run",
-				"title": "Run script",
+				"title": "Run Script",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.showOutput",
-				"title": "Show output",
+				"title": "Show Output",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.rerun-last-script",
-				"title": "Rerun last script",
+				"title": "Rerun Last Script",
 				"category": "npm"
 			},
 			{
