@@ -38,6 +38,7 @@ The extension defines a chording keyboard shortcut for the `R` key. As a consequ
 
 ## Release Notes
 
+- 0.0.13 save workspace before running scripts, added command to run `npm run build`
 - 0.0.12 added support for `npm.useRootDirectory`
 - 0.0.11 added command to run `npm test`.
 - 0.0.7 adding an icon and changed the display name to 'npm Script Runner'.

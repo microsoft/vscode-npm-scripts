@@ -1,128 +1,134 @@
 {
-  "name": "vscode-npm-script",
-  "description": "Run npm scripts from the Command Palette",
-  "displayName": "npm Script Runner",
-  "version": "0.0.12",
-  "publisher": "eg2",
-  "icon": "npm_icon.png",
-  "engines": {
-    "vscode": "^0.10.6"
-  },
-  "homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Microsoft/vscode-npm-scripts.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Microsoft/vscode-npm-scripts/issues"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onCommand:npm-script.install",
-    "onCommand:npm-script.run",
-    "onCommand:npm-script.showOutput",
-    "onCommand:npm-script.rerun-last-script",
-    "onCommand:npm-script.terminate-script",
-    "onCommand:npm-script.test"
-  ],
-  "main": "./out/src/main",
-  "contributes": {
-    "commands": [
-      {
-        "command": "npm-script.install",
-        "title": "install",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.run",
-        "title": "Run script",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.showOutput",
-        "title": "Show output",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.rerun-last-script",
-        "title": "Rerun last script",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.terminate-script",
-        "title": "Terminate script",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.test",
-        "title": "test",
-        "category": "npm"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "npm-script.showOutput",
-        "key": "Ctrl+R L",
-        "mac": "Cmd+R L"
-      },
-      {
-        "command": "npm-script.run",
-        "key": "Ctrl+R Shift+R",
-        "mac": "Cmd+R Shift+R"
-      },
-      {
-        "command": "npm-script.rerun-last-script",
-        "key": "Ctrl+R R",
-        "mac": "Cmd+R R"
-      },
-      {
-        "command": "npm-script.terminate-script",
-        "key": "Ctrl+R Shift+X",
-        "mac": "Cmd+R Shift+X"
-      },
-      {
-        "command": "npm-script.test",
-        "key": "Ctrl+R T",
-        "mac": "Cmd+R T"
-      }
-    ],
-    "configuration": {
-      "type": "object",
-      "title": "npm",
-      "properties": {
-        "npm.runInTerminal": {
-          "type": "boolean",
-          "default": true,
-          "description": "Run commands in a terminal"
-        },
-        "npm.includeDirectories": {
-          "type": "array",
-          "default": [],
-          "description": "Look for 'package.json' files in these directories"
-        },
-        "npm.useRootDirectory": {
-          "type": "boolean",
-          "default": true,
-          "description": "Look for 'package.json' in the root directory of the workspace"
-        }
-      }
-    }
-  },
-  "scripts": {
-    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-    "lint": "tslint -c tslint.json src/*.ts",
-    "postinstall": "node ./node_modules/vscode/bin/install"
-  },
-  "devDependencies": {
-    "typescript": "^1.7.5",
-    "vscode": "^0.11.0",
-    "tslint": "3.3.0"
-  },
-  "dependencies": {
-    "run-in-terminal": "^0.0.2",
-    "tree-kill": "^1.1.0"
-  }
+	"name": "vscode-npm-script",
+	"description": "Run npm scripts from the Command Palette",
+	"displayName": "npm Script Runner",
+	"version": "0.0.12",
+	"publisher": "eg2",
+	"icon": "npm_icon.png",
+	"engines": {
+		"vscode": "^0.10.6"
+	},
+	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Microsoft/vscode-npm-scripts.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Microsoft/vscode-npm-scripts/issues"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:npm-script.install",
+		"onCommand:npm-script.run",
+		"onCommand:npm-script.showOutput",
+		"onCommand:npm-script.rerun-last-script",
+		"onCommand:npm-script.terminate-script",
+		"onCommand:npm-script.test",
+		"onCommand:npm-script.build"
+	],
+	"main": "./out/src/main",
+	"contributes": {
+		"commands": [
+			{
+				"command": "npm-script.install",
+				"title": "install",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.terminate-script",
+				"title": "Terminate script",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.run",
+				"title": "Run script",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.showOutput",
+				"title": "Show output",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.rerun-last-script",
+				"title": "Rerun last script",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.test",
+				"title": "test",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.build",
+				"title": "build",
+				"category": "npm"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "npm-script.showOutput",
+				"key": "Ctrl+R L",
+				"mac": "Cmd+R L"
+			},
+			{
+				"command": "npm-script.run",
+				"key": "Ctrl+R Shift+R",
+				"mac": "Cmd+R Shift+R"
+			},
+			{
+				"command": "npm-script.rerun-last-script",
+				"key": "Ctrl+R R",
+				"mac": "Cmd+R R"
+			},
+			{
+				"command": "npm-script.terminate-script",
+				"key": "Ctrl+R Shift+X",
+				"mac": "Cmd+R Shift+X"
+			},
+			{
+				"command": "npm-script.test",
+				"key": "Ctrl+R T",
+				"mac": "Cmd+R T"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "npm",
+			"properties": {
+				"npm.runInTerminal": {
+					"type": "boolean",
+					"default": true,
+					"description": "Run commands in a terminal"
+				},
+				"npm.includeDirectories": {
+					"type": "array",
+					"default": [],
+					"description": "Look for 'package.json' files in these directories"
+				},
+				"npm.useRootDirectory": {
+					"type": "boolean",
+					"default": true,
+					"description": "Look for 'package.json' in the root directory of the workspace"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+		"lint": "tslint -c tslint.json src/*.ts",
+		"postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"devDependencies": {
+		"typescript": "^1.7.5",
+		"vscode": "^0.11.0",
+		"tslint": "3.3.0"
+	},
+	"dependencies": {
+		"run-in-terminal": "^0.0.2",
+		"tree-kill": "^1.1.0"
+	}
 }
