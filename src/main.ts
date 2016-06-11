@@ -101,20 +101,24 @@ function rerunLastScript(): void {
 }
 
 function terminateScript(): void {
-	let items: ProcessItem[] = [];
+	if(useTerminal()) {
+		window.showInformationMessage('Killing is only supported when the setting "runInTerminal" is "false"')
+	} else {
+		let items: ProcessItem[] = [];
 
-	runningProcesses.forEach((value) => {
-		items.push(new ProcessItem(value.cmd, `kill the process ${value.process.pid}`, value.process.pid))
-	});
+		runningProcesses.forEach((value) => {
+			items.push(new ProcessItem(value.cmd, `kill the process ${value.process.pid}`, value.process.pid))
+		});
 
-	window.showQuickPick(items).then((value) => {
-		if(value) {
-			outputChannel.appendLine('');
-			outputChannel.appendLine(`Killing process ${value.label} (pid: ${value.pid})`);
-			outputChannel.appendLine('');
-			kill(value.pid, 'SIGTERM');
-		}
-	});
+		window.showQuickPick(items).then((value) => {
+			if(value) {
+				outputChannel.appendLine('');
+				outputChannel.appendLine(`Killing process ${value.label} (pid: ${value.pid})`);
+				outputChannel.appendLine('');
+				kill(value.pid, 'SIGTERM');
+			}
+		});
+	}
 }
 
 function readScripts(): any {
