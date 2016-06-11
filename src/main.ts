@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColumn, QuickPickItem } from 'vscode';
 import { runInTerminal } from 'run-in-terminal';
-import * as kill from 'tree-kill';
+import { kill } from 'tree-kill';
 
 interface Script extends QuickPickItem {
 	scriptName: string;

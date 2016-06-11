@@ -7,7 +7,8 @@ under which Microsoft received such Third Party Code are set out below. This Thi
 to you under their original license terms set forth below.  Microsoft reserves all other rights not expressly
 granted, whether by implication, estoppel or otherwise.
 
-1.       DefinitelyTyped version 0.0.1 (https://github.com/borisyankov/DefinitelyTyped)
+1.       tree-kill version 1.1.0 (https://github.com/pkrumins/node-tree-kill)
+2.       DefinitelyTyped version 0.0.1 (https://github.com/borisyankov/DefinitelyTyped)
 
 This project is licensed under the MIT license.
 Copyrights are respective of each contributor listed at the beginning of each definition file.

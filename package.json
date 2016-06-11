@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "Run npm scripts from the Command Palette",
 	"displayName": "npm Script Runner",
-	"version": "0.0.13",
+	"version": "0.0.14",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
@@ -38,7 +38,7 @@
 			},
 			{
 				"command": "npm-script.terminate-script",
-				"title": "Terminate script",
+				"title": "Terminate Script",
 				"category": "npm"
 			},
 			{
