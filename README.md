@@ -39,6 +39,7 @@ The extension defines a chording keyboard shortcut for the `R` key. As a consequ
 
 ## Release Notes
 
+- 0.0.15 tweaks to the README so that the extension is found when searching for node.
 - 0.0.14 added command to terminate a running script
 - 0.0.13 save workspace before running scripts, added command to run `npm run build`
 - 0.0.12 added support for `npm.useRootDirectory`
