@@ -1,6 +1,6 @@
-# Npm Script Running for Visual Studio Code
+# Node npm Script Running for Visual Studio Code
 
-This extension supports running scripts defined in the `package.json` file.
+This extension supports running npm scripts defined in the `package.json` file.
 
 ## Features
 - Run npm install.
