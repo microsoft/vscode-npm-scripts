@@ -170,6 +170,7 @@ function runNpmCommand(args: string[], cwd?: string): void {
 		if (useTerminal()) {
 			runCommandInTerminal(args, cwd);
 		} else {
+			outputChannel.clear();
 			runCommandInOutputWindow(args, cwd);
 		}
 	});
