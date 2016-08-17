@@ -13,8 +13,8 @@ interface Script extends QuickPickItem {
 }
 
 interface Process {
-	process: cp.ChildProcess,
-	cmd: string
+	process: cp.ChildProcess;
+	cmd: string;
 }
 
 class ProcessItem implements QuickPickItem {
@@ -102,12 +102,12 @@ function rerunLastScript(): void {
 
 function terminateScript(): void {
 	if(useTerminal()) {
-		window.showInformationMessage('Killing is only supported when the setting "runInTerminal" is "false"')
+		window.showInformationMessage('Killing is only supported when the setting "runInTerminal" is "false"');
 	} else {
 		let items: ProcessItem[] = [];
 
 		runningProcesses.forEach((value) => {
-			items.push(new ProcessItem(value.cmd, `kill the process ${value.process.pid}`, value.process.pid))
+			items.push(new ProcessItem(value.cmd, `kill the process ${value.process.pid}`, value.process.pid));
 		});
 
 		window.showQuickPick(items).then((value) => {
@@ -176,7 +176,7 @@ function runCommandInOutputWindow(args: string[], cwd: string) {
 	let cmd = 'npm ' + args.join(' ');
 	let p = cp.exec(cmd, { cwd: cwd, env: process.env });
 
-	runningProcesses.set(p.pid, { process: p, cmd: cmd })
+	runningProcesses.set(p.pid, { process: p, cmd: cmd });
 
 	p.stderr.on('data', (data: string) => {
 		outputChannel.append(data);
@@ -187,7 +187,7 @@ function runCommandInOutputWindow(args: string[], cwd: string) {
 	p.on('exit', (code, signal) => {
 		runningProcesses.delete(p.pid);
 
-		if(signal == 'SIGTERM') {
+		if(signal === 'SIGTERM') {
 			outputChannel.appendLine('Successfully killed process');
 			outputChannel.appendLine('-----------------------');
 			outputChannel.appendLine('');
