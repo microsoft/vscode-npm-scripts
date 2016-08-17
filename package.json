@@ -112,6 +112,11 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Look for 'package.json' in the root directory of the workspace"
+				},
+				"npm.runSilent": {
+					"type": "boolean",
+					"default": false,
+					"description": "Run npm commands with the `--silent` option"
 				}
 			}
 		}

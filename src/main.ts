@@ -159,6 +159,9 @@ function readScripts(): any {
 }
 
 function runNpmCommand(args: string[], cwd?: string): void {
+	if (runSilent()) {
+		args.push('--silent');
+	}
 	workspace.saveAll().then(() => {
 		if (!cwd) {
 			cwd = workspace.rootPath;
@@ -206,6 +209,10 @@ function runCommandInTerminal(args: string[], cwd: string): void {
 
 function useTerminal() {
 	return workspace.getConfiguration('npm')['runInTerminal'];
+}
+
+function runSilent() {
+	return workspace.getConfiguration('npm')['runSilent'];
 }
 
 function getIncludedDirectories() {

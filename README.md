@@ -17,10 +17,11 @@ The commands defined by this extensions are in the `npm` category.
 
 ## Settings
 
-- With the setting `npm.runInTerminal` you configure whether the command is run
-in a terminal window or whether the output form the command is shown in the `Output` window.
-- If you have a subdirectory in your project with its own `package.json` file you can add it to the setting `npm.includeDirectories`.
-- If your root directory does not happen to contain `package.json` you can set `npm.useRootDirectory` to false to ignore the root directory.
+- `npm.runInTerminal` defines whether the command is run
+in a terminal window or whether the output form the command is shown in the `Output` window. The default is to show the output in the `Output` window.
+- `npm.includeDirectories` define additional directories that include a  `package.json`.
+- `npm.useRootDirectory` define whether the root directory of the workspace should be ignored, the default is `false`.
+- `npmRunSilent` run npm commands with the `--silent` option, the default is `false`.
 
 ##### Example
 ```javascript
@@ -39,6 +40,7 @@ The extension defines a chording keyboard shortcut for the `R` key. As a consequ
 
 ## Release Notes
 
+- 0.0.15 added setting to run npm commands with `--silent`.
 - 0.0.15 tweaks to the README so that the extension is found when searching for node.
 - 0.0.14 added command to terminate a running script
 - 0.0.13 save workspace before running scripts, added command to run `npm run build`
