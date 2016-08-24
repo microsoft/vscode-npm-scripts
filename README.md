@@ -40,6 +40,7 @@ The extension defines a chording keyboard shortcut for the `R` key. As a consequ
 
 ## Release Notes
 
+- 0.0.16 added `npm install ` to the context menu on `package.json` in the explorer.
 - 0.0.15 added setting to run npm commands with `--silent`.
 - 0.0.15 tweaks to the README so that the extension is found when searching for node.
 - 0.0.14 added command to terminate a running script

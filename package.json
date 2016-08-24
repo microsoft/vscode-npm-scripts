@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "Run npm scripts from the Command Palette",
 	"displayName": "npm Script Runner",
-	"version": "0.0.18",
+	"version": "0.0.19",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
@@ -33,7 +33,7 @@
 		"commands": [
 			{
 				"command": "npm-script.install",
-				"title": "install",
+				"title": "Install Dependencies",
 				"category": "npm"
 			},
 			{
@@ -58,15 +58,24 @@
 			},
 			{
 				"command": "npm-script.test",
-				"title": "test",
+				"title": "Run Test",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.build",
-				"title": "build",
+				"title": "Run Build",
 				"category": "npm"
 			}
 		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "resourceFilename == 'package.json'",
+					"command": "npm-script.install",
+					"group": "navigation@+1"
+				}
+			]
+		},
 		"keybindings": [
 			{
 				"command": "npm-script.showOutput",
