@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "Run npm scripts from the Command Palette",
 	"displayName": "npm Script Runner",
-	"version": "0.0.19",
+	"version": "0.0.20",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
@@ -110,7 +110,7 @@
 				"npm.runInTerminal": {
 					"type": "boolean",
 					"default": true,
-					"description": "Run commands in a terminal"
+					"description": "Run npm commands in a terminal, otherwise shows the output in the output panel"
 				},
 				"npm.includeDirectories": {
 					"type": "array",

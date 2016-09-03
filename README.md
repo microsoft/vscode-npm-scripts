@@ -18,7 +18,7 @@ The commands defined by this extensions are in the `npm` category.
 ## Settings
 
 - `npm.runInTerminal` defines whether the command is run
-in a terminal window or whether the output form the command is shown in the `Output` window. The default is to show the output in the `Output` window.
+in a terminal window or whether the output form the command is shown in the `Output` window. The default is to show the output in the terminal.
 - `npm.includeDirectories` define additional directories that include a  `package.json`.
 - `npm.useRootDirectory` define whether the root directory of the workspace should be ignored, the default is `false`.
 - `npmRunSilent` run npm commands with the `--silent` option, the default is `false`.
@@ -40,6 +40,7 @@ The extension defines a chording keyboard shortcut for the `R` key. As a consequ
 
 ## Release Notes
 
+- 0.0.20 when commands are run in the terminal, then the **integrated terminal** is used.
 - 0.0.16 added `npm install ` to the context menu on `package.json` in the explorer.
 - 0.0.15 added setting to run npm commands with `--silent`.
 - 0.0.15 tweaks to the README so that the extension is found when searching for node.

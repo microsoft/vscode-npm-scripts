@@ -2,7 +2,7 @@ import * as cp from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColumn, QuickPickItem } from 'vscode';
+import { window, commands, workspace, OutputChannel, ExtensionContext, ViewColumn, QuickPickItem, Terminal } from 'vscode';
 import { runInTerminal } from 'run-in-terminal';
 import { kill } from 'tree-kill';
 
@@ -24,6 +24,7 @@ class ProcessItem implements QuickPickItem {
 const runningProcesses: Map<number, Process> = new Map();
 
 let outputChannel: OutputChannel;
+let terminal: Terminal = null;
 let lastScript: Script = null;
 
 export function activate(context: ExtensionContext) {
@@ -32,15 +33,22 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(outputChannel);
 }
 
+export function deactivate() {
+	if (terminal) {
+		terminal.dispose();
+	}
+}
+
 function registerCommands(context: ExtensionContext) {
-	let c1 = commands.registerCommand('npm-script.install', runNpmInstall);
-	let c2 = commands.registerCommand('npm-script.test', runNpmTest);
-	let c3 = commands.registerCommand('npm-script.run', runNpmScript);
-	let c4 = commands.registerCommand('npm-script.showOutput', showNpmOutput);
-	let c5 = commands.registerCommand('npm-script.rerun-last-script', rerunLastScript);
-	let c6 = commands.registerCommand('npm-script.build', runNpmBuild);
-	let c7 = commands.registerCommand('npm-script.terminate-script', terminateScript);
-	context.subscriptions.push(c1, c2, c3, c4, c5, c6, c7);
+	context.subscriptions.push(
+		commands.registerCommand('npm-script.install', runNpmInstall),
+		commands.registerCommand('npm-script.test', runNpmTest),
+		commands.registerCommand('npm-script.run', runNpmScript),
+		commands.registerCommand('npm-script.showOutput', showNpmOutput),
+		commands.registerCommand('npm-script.rerun-last-script', rerunLastScript),
+		commands.registerCommand('npm-script.build', runNpmBuild),
+		commands.registerCommand('npm-script.terminate-script', terminateScript)
+	);
 }
 
 function runNpmInstall() {
@@ -168,7 +176,11 @@ function runNpmCommand(args: string[], cwd?: string): void {
 		}
 
 		if (useTerminal()) {
-			runCommandInTerminal(args, cwd);
+			if (typeof window.createTerminal === 'function') {
+				runCommandInIntegratedTerminal(args, cwd);
+			} else {
+				runCommandInTerminal(args, cwd);
+			}
 		} else {
 			outputChannel.clear();
 			runCommandInOutputWindow(args, cwd);
@@ -206,6 +218,15 @@ function runCommandInOutputWindow(args: string[], cwd: string) {
 
 function runCommandInTerminal(args: string[], cwd: string): void {
 	runInTerminal('npm', args, { cwd: cwd, env: process.env });
+}
+
+function runCommandInIntegratedTerminal(args: string[], cwd: string): void {
+	if (!terminal) {
+		terminal = window.createTerminal('npm');
+	}
+	terminal.show();
+	args.splice(0, 0, 'npm');
+	terminal.sendText(args.join(' '));
 }
 
 function useTerminal() {
