@@ -189,7 +189,7 @@ function runNpmCommand(args: string[], cwd?: string): void {
 }
 
 function runCommandInOutputWindow(args: string[], cwd: string) {
-	let cmd = 'npm ' + args.join(' ');
+	let cmd = getNpmBin() + ' ' + args.join(' ');
 	let p = cp.exec(cmd, { cwd: cwd, env: process.env });
 
 	runningProcesses.set(p.pid, { process: p, cmd: cmd });
@@ -217,7 +217,7 @@ function runCommandInOutputWindow(args: string[], cwd: string) {
 }
 
 function runCommandInTerminal(args: string[], cwd: string): void {
-	runInTerminal('npm', args, { cwd: cwd, env: process.env });
+	runInTerminal(getNpmBin(), args, { cwd: cwd, env: process.env });
 }
 
 function runCommandInIntegratedTerminal(args: string[], cwd: string): void {
@@ -225,7 +225,7 @@ function runCommandInIntegratedTerminal(args: string[], cwd: string): void {
 		terminal = window.createTerminal('npm');
 	}
 	terminal.show();
-	args.splice(0, 0, 'npm');
+	args.splice(0, 0, getNpmBin());
 	terminal.sendText(args.join(' '));
 }
 
@@ -251,4 +251,8 @@ function getIncludedDirectories() {
 	}
 
 	return dirs;
+}
+
+function getNpmBin() {
+	return workspace.getConfiguration('npm')['bin'] || 'npm';
 }
