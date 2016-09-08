@@ -126,6 +126,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Run npm commands with the `--silent` option"
+				},
+				"npm.bin": {
+					"type": "string",
+					"default": "npm",
+					"description": "npm bin name"
 				}
 			}
 		}

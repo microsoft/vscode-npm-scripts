@@ -21,7 +21,8 @@ The commands defined by this extensions are in the `npm` category.
 in a terminal window or whether the output form the command is shown in the `Output` window. The default is to show the output in the terminal.
 - `npm.includeDirectories` define additional directories that include a  `package.json`.
 - `npm.useRootDirectory` define whether the root directory of the workspace should be ignored, the default is `false`.
-- `npmRunSilent` run npm commands with the `--silent` option, the default is `false`.
+- `npm.runSilent` run npm commands with the `--silent` option, the default is `false`.
+- `npm.bin` custom npm bin name, the default is `npm`.
 
 ##### Example
 ```javascript
