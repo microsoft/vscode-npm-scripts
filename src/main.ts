@@ -88,7 +88,13 @@ function runNpmScript(): void {
 			cwd: s.absolutePath,
 			execute() {
 				lastScript = this;
-				runNpmCommand(['run-script', this.scriptName], this.cwd);
+				let script = this.scriptName;
+				// quote the script name, when it contains white space
+				if (/\s/g.test(script)) {
+					script = `"${script}"`
+				}
+				let command = ['run-script', script];
+				runNpmCommand(command, this.cwd);
 			}
 		});
 	}
