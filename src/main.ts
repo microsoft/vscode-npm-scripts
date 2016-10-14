@@ -96,7 +96,7 @@ function runNpmScript(): void {
 				let script = this.scriptName;
 				// quote the script name, when it contains white space
 				if (/\s/g.test(script)) {
-					script = `"${script}"`
+					script = `"${script}"`;
 				}
 				let command = ['run-script', script];
 				runNpmCommand(command, this.cwd);
