@@ -41,6 +41,7 @@ The extension defines a chording keyboard shortcut for the `R` key. As a consequ
 
 ## Release Notes
 
+- 0.0.21 added command to run `npm start`.
 - 0.0.20 when commands are run in the terminal, then the **integrated terminal** is used.
 - 0.0.16 added `npm install ` to the context menu on `package.json` in the explorer.
 - 0.0.15 added setting to run npm commands with `--silent`.

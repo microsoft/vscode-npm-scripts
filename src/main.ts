@@ -43,6 +43,7 @@ function registerCommands(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand('npm-script.install', runNpmInstall),
 		commands.registerCommand('npm-script.test', runNpmTest),
+		commands.registerCommand('npm-script.start', runNpmStart),
 		commands.registerCommand('npm-script.run', runNpmScript),
 		commands.registerCommand('npm-script.showOutput', showNpmOutput),
 		commands.registerCommand('npm-script.rerun-last-script', rerunLastScript),
@@ -60,6 +61,10 @@ function runNpmInstall() {
 
 function runNpmTest() {
 	runNpmCommand(['test']);
+}
+
+function runNpmStart() {
+	runNpmCommand(['start']);
 }
 
 function runNpmBuild() {
