@@ -111,7 +111,7 @@
 		],
 		"configuration": {
 			"type": "object",
-			"title": "npm",
+			"title": "npm Script Runner",
 			"properties": {
 				"npm.runInTerminal": {
 					"type": "boolean",
