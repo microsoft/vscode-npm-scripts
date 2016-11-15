@@ -91,11 +91,11 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(languages.registerCodeActionsProvider('json', new NpmCodeActionProvider()));
 
 	workspace.onDidSaveTextDocument(document => {
-		console.log("onDidSaveTextDocument ", document.fileName);
+		//console.log("onDidSaveTextDocument ", document.fileName);
 		validateDocument(document);
 	}, null, context.subscriptions);
 	window.onDidChangeActiveTextEditor(editor => {
-		console.log("onDidChangeActiveTextEditor", editor.document.fileName);
+		//console.log("onDidChangeActiveTextEditor", editor.document.fileName);
 		if (editor && editor.document) {
 			validateDocument(editor.document);
 		}
@@ -235,11 +235,11 @@ function getDiagnostic(document: TextDocument, result: Object, moduleName: strin
 		if (result[each] && result[each][moduleName]) {
 			if (result[each][moduleName]['missing'] === true) {
 				let range = new Range(document.positionAt(source.name.offset), document.positionAt(source.name.offset + source.name.length));
-				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' not installed`, DiagnosticSeverity.Warning);
+				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
 			}
 			if (result[each][moduleName]['invalid'] === true) {
 				let range = new Range(document.positionAt(source.version.offset), document.positionAt(source.version.offset + source.version.length));
-				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' installed version is invalid`, DiagnosticSeverity.Warning);
+				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' the installed version is invalid`, DiagnosticSeverity.Warning);
 			}
 		}
 	});
