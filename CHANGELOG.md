@@ -1,0 +1,11 @@
+- 0.0.21 added command to run `npm start`.
+- 0.0.20 when commands are run in the terminal, then the **integrated terminal** is used.
+- 0.0.16 added `npm install ` to the context menu on `package.json` in the explorer.
+- 0.0.15 added setting to run npm commands with `--silent`.
+- 0.0.15 tweaks to the README so that the extension is found when searching for node.
+- 0.0.14 added command to terminate a running script
+- 0.0.13 save workspace before running scripts, added command to run `npm run build`
+- 0.0.12 added support for `npm.useRootDirectory`
+- 0.0.11 added command to run `npm test`.
+- 0.0.7 adding an icon and changed the display name to 'npm Script Runner'.
+- 0.0.4 the keybinding was changed from `R` to `N` to avoid conflicts with the default `workbench.action.files.newUntitledFile` command.
