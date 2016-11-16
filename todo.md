@@ -1,0 +1,3 @@
+- type the interface of the JSON result from `npm list`
+- detect 'extraneous' modules
+- review quick fixes for invalid version modules

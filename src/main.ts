@@ -186,45 +186,39 @@ function runNpmBuild() {
 	runNpmCommand(['run-script', 'build']);
 }
 
-function doValidate(document: TextDocument): Promise<void> {
+async function doValidate(document: TextDocument) {
 	//console.log('do validate');
-	return new Promise<void>((resolve, reject) => {
+	let result = await getInstalledModules();
+	let errors = [];
+	let definedDependencies: DependencySourceRanges = {};
 
-		getInstalledModules().then(result => {
-			let errors = [];
-			let definedDependencies: DependencySourceRanges = {};
+	diagnosticCollection.clear();
 
-			if (!anyModuleErrors(result)) {
-				resolve();
-			}
+	if (!anyModuleErrors(result)) {
+		return;
+	}
 
-			let node = parseTree(document.getText(), errors);
+	let node = parseTree(document.getText(), errors);
 
-			node.children.forEach(child => {
-				let children = child.children;
-				if (children && children.length === 2 && isDependency(children[0].value)) {
-					collectDefinedDependencies(definedDependencies, child.children[1]);
-				}
-			});
-
-			diagnosticCollection.clear();
-			let diagnostics: Diagnostic[] = [];
-
-			for (var moduleName in definedDependencies) {
-				if (definedDependencies.hasOwnProperty(moduleName)) {
-					let diagnostic = getDiagnostic(document, result, moduleName, definedDependencies[moduleName]);
-					if (diagnostic) {
-						diagnostics.push(diagnostic);
-					}
-				}
-			}
-			diagnosticCollection.set(document.uri, diagnostics);
-			//console.log("diagnostic count ", diagnostics.length, " ", document.uri.fsPath);
-			resolve();
-		}, error => {
-			reject(error);
-		});
+	node.children.forEach(child => {
+		let children = child.children;
+		if (children && children.length === 2 && isDependency(children[0].value)) {
+			collectDefinedDependencies(definedDependencies, child.children[1]);
+		}
 	});
+
+	let diagnostics: Diagnostic[] = [];
+
+	for (var moduleName in definedDependencies) {
+		if (definedDependencies.hasOwnProperty(moduleName)) {
+			let diagnostic = getDiagnostic(document, result, moduleName, definedDependencies[moduleName]);
+			if (diagnostic) {
+				diagnostics.push(diagnostic);
+			}
+		}
+	}
+	diagnosticCollection.set(document.uri, diagnostics);
+	//console.log("diagnostic count ", diagnostics.length, " ", document.uri.fsPath);
 }
 
 function getDiagnostic(document: TextDocument, result: Object, moduleName: string, source: SourceRange): Diagnostic {
@@ -410,8 +404,8 @@ function runNpmCommand(args: string[], cwd?: string, alwaysRunInputWindow = fals
 	});
 }
 
-function getInstalledModules(): Promise<Object> {
-	return new Promise((resolve, reject) => {
+async function getInstalledModules() {
+	return new Promise<Object>((resolve, reject) => {
 		let cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
 		let jsonResult = '';
 		let errors = '';
