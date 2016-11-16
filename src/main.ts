@@ -111,13 +111,11 @@ export function activate(context: ExtensionContext) {
 	// 	console.log("onDidOpenTextDocument ", document.fileName);
 	// 	validateDocument(document);
 	// }, null, context.subscriptions);
-
 	window.visibleTextEditors.forEach(each => {
 		if (each.document) {
 			validateDocument(each.document);
 		}
 	});
-
 
 	context.subscriptions.push();
 }
@@ -188,17 +186,37 @@ function runNpmBuild() {
 
 async function doValidate(document: TextDocument) {
 	//console.log('do validate');
-	let result = await getInstalledModules();
-	let errors = [];
-	let definedDependencies: DependencySourceRanges = {};
+	try {
+		let result = await getInstalledModules();
 
-	diagnosticCollection.clear();
+		diagnosticCollection.clear();
 
-	if (!anyModuleErrors(result)) {
-		return;
+		if (!anyModuleErrors(result)) {
+			return;
+		}
+
+		let dependencySourceRanges = parseSourceRanges(document.getText());
+		let diagnostics: Diagnostic[] = [];
+
+		for (var moduleName in dependencySourceRanges) {
+			if (dependencySourceRanges.hasOwnProperty(moduleName)) {
+				let diagnostic = getDiagnostic(document, result, moduleName, dependencySourceRanges[moduleName]);
+				if (diagnostic) {
+					diagnostics.push(diagnostic);
+				}
+			}
+		}
+		diagnosticCollection.set(document.uri, diagnostics);
+		//console.log("diagnostic count ", diagnostics.length, " ", document.uri.fsPath);
+	} catch (e) {
+		console.log(e);
 	}
+}
 
-	let node = parseTree(document.getText(), errors);
+function parseSourceRanges(text: string): DependencySourceRanges {
+	let definedDependencies: DependencySourceRanges = {};
+	let errors = [];
+	let node = parseTree(text, errors);
 
 	node.children.forEach(child => {
 		let children = child.children;
@@ -206,19 +224,7 @@ async function doValidate(document: TextDocument) {
 			collectDefinedDependencies(definedDependencies, child.children[1]);
 		}
 	});
-
-	let diagnostics: Diagnostic[] = [];
-
-	for (var moduleName in definedDependencies) {
-		if (definedDependencies.hasOwnProperty(moduleName)) {
-			let diagnostic = getDiagnostic(document, result, moduleName, definedDependencies[moduleName]);
-			if (diagnostic) {
-				diagnostics.push(diagnostic);
-			}
-		}
-	}
-	diagnosticCollection.set(document.uri, diagnostics);
-	//console.log("diagnostic count ", diagnostics.length, " ", document.uri.fsPath);
+	return definedDependencies;
 }
 
 function getDiagnostic(document: TextDocument, result: Object, moduleName: string, source: SourceRange): Diagnostic {
@@ -253,7 +259,7 @@ function anyModuleErrors(result: any): boolean {
 	return errorCount > 0;
 }
 
-function collectDefinedDependencies(deps: Object, node: Node) {
+function collectDefinedDependencies(deps: DependencySourceRanges, node: Node) {
 	node.children.forEach(child => {
 		if (child.type === 'property' && child.children.length === 2) {
 			let dependencyName = child.children[0];
