@@ -115,11 +115,9 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(languages.registerCodeActionsProvider('json', new NpmCodeActionProvider()));
 
 	workspace.onDidSaveTextDocument(document => {
-		//console.log("onDidSaveTextDocument ", document.fileName);
 		validateDocument(document);
 	}, null, context.subscriptions);
 	window.onDidChangeActiveTextEditor(editor => {
-		//console.log("onDidChangeActiveTextEditor", editor.document.fileName);
 		if (editor && editor.document) {
 			validateDocument(editor.document);
 		}
@@ -158,10 +156,8 @@ function validateDocument(document: TextDocument) {
 	if (!delayer) {
 		delayer = new ThrottledDelayer<void>(200);
 	}
-	//console.log('trigger');
 	delayer.trigger(() => doValidate(document));
 }
-
 
 function validateAllDocuments() {
 	workspace.textDocuments.forEach(each => validateDocument(each));
@@ -209,7 +205,6 @@ function runNpmBuild() {
 }
 
 async function doValidate(document: TextDocument) {
-	//console.log('do validate');
 	try {
 		let report = await getInstalledModules();
 
@@ -260,26 +255,25 @@ function parseSourceRanges(text: string): SourceRanges {
 	return {
 		dependencies: definedDependencies,
 		properties: properties
-	}
+	};
 }
 
 function getDiagnostic(document: TextDocument, result: Object, moduleName: string, ranges: SourceRanges): Diagnostic {
-	let deps = ['dependencies', 'devDependencies'];
 	let diagnostic = null;
 
-	deps.forEach(each => {
+	['dependencies', 'devDependencies'].forEach(each => {
 		if (result[each] && result[each][moduleName]) {
 			if (result[each][moduleName]['missing'] === true) {
 				let source = ranges.dependencies[moduleName].name;
 				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
 				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
 			}
-			if (result[each][moduleName]['invalid'] === true) {
+			else if (result[each][moduleName]['invalid'] === true) {
 				let source = ranges.dependencies[moduleName].version;
 				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
 				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' the installed version is invalid`, DiagnosticSeverity.Warning);
 			}
-			if (result[each][moduleName]['extraneous'] === true) {
+			else if (result[each][moduleName]['extraneous'] === true) {
 				let source = null;
 				if (ranges.properties['dependencies']) {
 					source = ranges.properties['dependencies'].name;
@@ -296,8 +290,8 @@ function getDiagnostic(document: TextDocument, result: Object, moduleName: strin
 	return diagnostic;
 }
 
-function anyModuleErrors(result: any): boolean {
-	let problems: string[] = result['problems'];
+function anyModuleErrors(report: NpmListReport): boolean {
+	let problems: string[] = report['problems'];
 	let errorCount = 0;
 	if (problems) {
 		problems.forEach(each => {
