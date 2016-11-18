@@ -13,9 +13,6 @@ import { kill } from 'tree-kill';
 import { parseTree, Node, } from 'jsonc-parser';
 import { ThrottledDelayer } from './async';
 
-let diagnosticCollection: DiagnosticCollection;
-let delayer: ThrottledDelayer<void> = null;
-
 interface Script extends QuickPickItem {
 	scriptName: string;
 	cwd: string;
@@ -36,6 +33,9 @@ interface SourceRange {
 		offset: number;
 		length: number;
 	};
+}
+
+interface SourceRangeWithVersion extends SourceRange {
 	version: {
 		offset: number;
 		length: number;
@@ -43,7 +43,29 @@ interface SourceRange {
 }
 
 interface DependencySourceRanges {
+	[dependency: string]: SourceRangeWithVersion;
+}
+
+interface PropertySourceRanges {
 	[dependency: string]: SourceRange;
+}
+
+interface SourceRanges {
+	properties: PropertySourceRanges;
+	dependencies: DependencySourceRanges;
+}
+
+interface NpmDependencyReport {
+	[dependency: string]: {
+		invalid: boolean;
+		extraneous: boolean;
+		missing: boolean;
+	};
+}
+
+interface NpmListReport {
+	problems: string[];
+	dependencies: NpmDependencyReport;
 }
 
 class NpmCodeActionProvider implements CodeActionProvider {
@@ -78,6 +100,8 @@ const runningProcesses: Map<number, Process> = new Map();
 let outputChannel: OutputChannel;
 let terminal: Terminal = null;
 let lastScript: Script = null;
+let diagnosticCollection: DiagnosticCollection;
+let delayer: ThrottledDelayer<void> = null;
 
 export function activate(context: ExtensionContext) {
 	registerCommands(context);
@@ -187,59 +211,85 @@ function runNpmBuild() {
 async function doValidate(document: TextDocument) {
 	//console.log('do validate');
 	try {
-		let result = await getInstalledModules();
+		let report = await getInstalledModules();
 
 		diagnosticCollection.clear();
 
-		if (!anyModuleErrors(result)) {
+		if (!anyModuleErrors(report)) {
 			return;
 		}
 
-		let dependencySourceRanges = parseSourceRanges(document.getText());
+		let sourceRanges = parseSourceRanges(document.getText());
+		let dependencies = report.dependencies;
 		let diagnostics: Diagnostic[] = [];
 
-		for (var moduleName in dependencySourceRanges) {
-			if (dependencySourceRanges.hasOwnProperty(moduleName)) {
-				let diagnostic = getDiagnostic(document, result, moduleName, dependencySourceRanges[moduleName]);
+		for (var moduleName in dependencies) {
+			if (dependencies.hasOwnProperty(moduleName)) {
+				let diagnostic = getDiagnostic(document, report, moduleName, sourceRanges);
 				if (diagnostic) {
 					diagnostics.push(diagnostic);
 				}
 			}
 		}
-		diagnosticCollection.set(document.uri, diagnostics);
 		//console.log("diagnostic count ", diagnostics.length, " ", document.uri.fsPath);
+		diagnosticCollection.set(document.uri, diagnostics);
 	} catch (e) {
-		console.log(e);
+		window.showInformationMessage(`Finding installed modules failed `+e);
 	}
 }
 
-function parseSourceRanges(text: string): DependencySourceRanges {
+function parseSourceRanges(text: string): SourceRanges {
 	let definedDependencies: DependencySourceRanges = {};
+	let properties: PropertySourceRanges = {};
 	let errors = [];
 	let node = parseTree(text, errors);
 
 	node.children.forEach(child => {
 		let children = child.children;
+		let property = children[0];
+		properties[property.value] = {
+			name: {
+				offset: property.offset,
+				length: property.length
+			}
+		};
 		if (children && children.length === 2 && isDependency(children[0].value)) {
 			collectDefinedDependencies(definedDependencies, child.children[1]);
 		}
 	});
-	return definedDependencies;
+	return {
+		dependencies: definedDependencies,
+		properties: properties
+	}
 }
 
-function getDiagnostic(document: TextDocument, result: Object, moduleName: string, source: SourceRange): Diagnostic {
+function getDiagnostic(document: TextDocument, result: Object, moduleName: string, ranges: SourceRanges): Diagnostic {
 	let deps = ['dependencies', 'devDependencies'];
 	let diagnostic = null;
 
 	deps.forEach(each => {
 		if (result[each] && result[each][moduleName]) {
 			if (result[each][moduleName]['missing'] === true) {
-				let range = new Range(document.positionAt(source.name.offset), document.positionAt(source.name.offset + source.name.length));
+				let source = ranges.dependencies[moduleName].name;
+				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
 				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
 			}
 			if (result[each][moduleName]['invalid'] === true) {
-				let range = new Range(document.positionAt(source.version.offset), document.positionAt(source.version.offset + source.version.length));
+				let source = ranges.dependencies[moduleName].version;
+				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
 				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' the installed version is invalid`, DiagnosticSeverity.Warning);
+			}
+			if (result[each][moduleName]['extraneous'] === true) {
+				let source = null;
+				if (ranges.properties['dependencies']) {
+					source = ranges.properties['dependencies'].name;
+				} else if (ranges.properties['devDependencies']) {
+					source = ranges.properties['devDependencies'].name;
+				} else if (ranges.properties['name']) {
+					source = ranges.properties['name'].name;
+				}
+				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
+				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' is extraneous`, DiagnosticSeverity.Warning);
 			}
 		}
 	});
@@ -410,8 +460,8 @@ function runNpmCommand(args: string[], cwd?: string, alwaysRunInputWindow = fals
 	});
 }
 
-async function getInstalledModules() {
-	return new Promise<Object>((resolve, reject) => {
+async function getInstalledModules():Promise<NpmListReport>  {
+	return new Promise<NpmListReport>((resolve, reject) => {
 		let cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
 		let jsonResult = '';
 		let errors = '';
@@ -423,9 +473,8 @@ async function getInstalledModules() {
 		p.stderr.on('data', (chunk: string) => errors += chunk);
 		p.stdout.on('data', (chunk: string) => jsonResult += chunk);
 		p.on('exit', (code, signal) => {
-			let resp = '';
 			try {
-				resp = JSON.parse(jsonResult);
+				let resp:NpmListReport = JSON.parse(jsonResult);
 				resolve(resp);
 			} catch (e) {
 				reject(e);
