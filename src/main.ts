@@ -72,8 +72,8 @@ class NpmCodeActionProvider implements CodeActionProvider {
 	public provideCodeActions(document: TextDocument, range: Range, context: CodeActionContext, token: CancellationToken): Command[] {
 		let cmds: Command[] = [];
 		context.diagnostics.forEach(diag => {
-			if (diag.message.indexOf('[npm] ') === 0) {
-				let [_, moduleName] = /^\[npm\] Module '(\S*)'/.exec(diag.message);
+			if (diag.source === 'npm') {
+				let [_, moduleName] = /^Module '(\S*)'/.exec(diag.message);
 				cmds.push({
 					title: `run: npm install '${moduleName}'`,
 					command: 'npm-script.installInOutputWindow',
@@ -133,11 +133,7 @@ export function activate(context: ExtensionContext) {
 	// 	console.log("onDidOpenTextDocument ", document.fileName);
 	// 	validateDocument(document);
 	// }, null, context.subscriptions);
-	window.visibleTextEditors.forEach(each => {
-		if (each.document) {
-			validateDocument(each.document);
-		}
-	});
+	validateAllDocuments();
 
 	context.subscriptions.push();
 }
@@ -160,7 +156,13 @@ function validateDocument(document: TextDocument) {
 }
 
 function validateAllDocuments() {
-	workspace.textDocuments.forEach(each => validateDocument(each));
+	//workspace.textDocuments.forEach(each => validateDocument(each));
+
+	window.visibleTextEditors.forEach(each => {
+		if (each.document) {
+			validateDocument(each.document);
+		}
+	});
 }
 
 function registerCommands(context: ExtensionContext) {
@@ -222,6 +224,7 @@ async function doValidate(document: TextDocument) {
 			if (dependencies.hasOwnProperty(moduleName)) {
 				let diagnostic = getDiagnostic(document, report, moduleName, sourceRanges);
 				if (diagnostic) {
+					diagnostic.source = 'npm';
 					diagnostics.push(diagnostic);
 				}
 			}
@@ -266,12 +269,12 @@ function getDiagnostic(document: TextDocument, result: Object, moduleName: strin
 			if (result[each][moduleName]['missing'] === true) {
 				let source = ranges.dependencies[moduleName].name;
 				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
+				diagnostic = new Diagnostic(range, `Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
 			}
 			else if (result[each][moduleName]['invalid'] === true) {
 				let source = ranges.dependencies[moduleName].version;
 				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' the installed version is invalid`, DiagnosticSeverity.Warning);
+				diagnostic = new Diagnostic(range, `Module '${moduleName}' the installed version is invalid`, DiagnosticSeverity.Warning);
 			}
 			else if (result[each][moduleName]['extraneous'] === true) {
 				let source = null;
@@ -283,7 +286,7 @@ function getDiagnostic(document: TextDocument, result: Object, moduleName: strin
 					source = ranges.properties['name'].name;
 				}
 				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-				diagnostic = new Diagnostic(range, `[npm] Module '${moduleName}' is extraneous`, DiagnosticSeverity.Warning);
+				diagnostic = new Diagnostic(range, `Module '${moduleName}' is extraneous`, DiagnosticSeverity.Warning);
 			}
 		}
 	});
