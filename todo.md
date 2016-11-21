@@ -1,3 +1,4 @@
-- type the interface of the JSON result from `npm list`
-- detect 'extraneous' modules
-- review quick fixes for invalid version modules
+- [x] type the interface of the JSON result from `npm list`
+- [x] detect 'extraneous' modules
+- [x] review quick fixes for invalid version modules
+- [x] add quick fixes for extraneous modules

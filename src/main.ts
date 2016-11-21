@@ -70,25 +70,81 @@ interface NpmListReport {
 
 class NpmCodeActionProvider implements CodeActionProvider {
 	public provideCodeActions(document: TextDocument, range: Range, context: CodeActionContext, token: CancellationToken): Command[] {
+		function addFixNpmInstallModule(cmds: Command[], moduleName: string) {
+			cmds.push({
+				title: `run: npm install '${moduleName}'`,
+				command: 'npm-script.installInOutputWindow',
+				arguments: [moduleName]
+			});
+		}
+
+		function addFixNpmInstall(cmds: Command[]) {
+			cmds.push({
+				title: `run: npm install`,
+				command: 'npm-script.installInOutputWindow',
+				arguments: []
+			});
+		}
+
+		function addFixValidate(cmds: Command[]) {
+			cmds.push({
+				title: `validate installed modules`,
+				command: 'npm-script.validate',
+				arguments: []
+			});
+		}
+
+		function addFixNpmUninstallModule(cmds: Command[], moduleName: string) {
+			cmds.push({
+				title: `run: npm uninstall '${moduleName}'`,
+				command: 'npm-script.uninstallInOutputWindow',
+				arguments: [moduleName]
+			});
+		}
+
+		function addFixNpmInstallModuleSave(cmds: Command[], moduleName: string) {
+			cmds.push({
+				title: `run: npm install '${moduleName}' --save`,
+				command: 'npm-script.installInOutputWindow',
+				arguments: [moduleName, '--save']
+			});
+		}
+
+		function addFixNpmInstallModuleSaveDev(cmds: Command[], moduleName: string) {
+			cmds.push({
+				title: `run: npm install '${moduleName}' --save-dev`,
+				command: 'npm-script.installInOutputWindow',
+				arguments: [moduleName, '--save-dev']
+			});
+		}
+
 		let cmds: Command[] = [];
 		context.diagnostics.forEach(diag => {
 			if (diag.source === 'npm') {
-				let [_, moduleName] = /^Module '(\S*)'/.exec(diag.message);
-				cmds.push({
-					title: `run: npm install '${moduleName}'`,
-					command: 'npm-script.installInOutputWindow',
-					arguments: [moduleName]
-				});
-				cmds.push({
-					title: `run: npm install`,
-					command: 'npm-script.installInOutputWindow',
-					arguments: []
-				});
-				cmds.push({
-					title: `validate installed modules`,
-					command: 'npm-script.validate',
-					arguments: []
-				});
+				let result = /^Module '(\S*)' is not installed/.exec(diag.message);
+				if (result) {
+					let [_, moduleName] = result;
+					addFixNpmInstallModule(cmds, moduleName);
+					addFixNpmInstall(cmds);
+					addFixValidate(cmds);
+					return;
+				}
+				result = /^Module '(\S*)' the installed version is invalid/.exec(diag.message);
+				if (result) {
+					let [_, moduleName] = result;
+					addFixNpmInstallModule(cmds, moduleName);
+					addFixValidate(cmds);
+					return;
+				}
+				result = /^Module '(\S*)' is extraneous/.exec(diag.message);
+				if (result) {
+					let [_, moduleName] = result;
+					addFixNpmUninstallModule(cmds, moduleName);
+					addFixNpmInstallModuleSave(cmds, moduleName);
+					addFixNpmInstallModuleSaveDev(cmds, moduleName);
+					addFixValidate(cmds);
+					return;
+				}
 			}
 		});
 		return cmds;
@@ -156,6 +212,7 @@ function validateDocument(document: TextDocument) {
 }
 
 function validateAllDocuments() {
+	// TODO: why doesn't this not work?
 	//workspace.textDocuments.forEach(each => validateDocument(each));
 
 	window.visibleTextEditors.forEach(each => {
@@ -175,6 +232,7 @@ function registerCommands(context: ExtensionContext) {
 		commands.registerCommand('npm-script.rerun-last-script', rerunLastScript),
 		commands.registerCommand('npm-script.build', runNpmBuild),
 		commands.registerCommand('npm-script.installInOutputWindow', runNpmInstallInOutputWindow),
+		commands.registerCommand('npm-script.uninstallInOutputWindow', runNpmUninstallInOutputWindow),
 		commands.registerCommand('npm-script.validate', validateAllDocuments),
 		commands.registerCommand('npm-script.terminate-script', terminateScript)
 	);
@@ -187,10 +245,17 @@ function runNpmInstall() {
 	}
 }
 
-function runNpmInstallInOutputWindow(arg) {
+function runNpmInstallInOutputWindow(arg1, arg2) {
 	let dirs = getIncludedDirectories();
 	for (let dir of dirs) {
-		runNpmCommand(['install', arg], dir, true);
+		runNpmCommand(['install', arg1, arg2], dir, true);
+	}
+}
+
+function runNpmUninstallInOutputWindow(arg) {
+	let dirs = getIncludedDirectories();
+	for (let dir of dirs) {
+		runNpmCommand(['uninstall', arg], dir, true);
 	}
 }
 
@@ -232,7 +297,7 @@ async function doValidate(document: TextDocument) {
 		//console.log("diagnostic count ", diagnostics.length, " ", document.uri.fsPath);
 		diagnosticCollection.set(document.uri, diagnostics);
 	} catch (e) {
-		window.showInformationMessage(`Finding installed modules failed `+e);
+		window.showInformationMessage(`Finding installed modules failed ` + e);
 	}
 }
 
@@ -295,15 +360,12 @@ function getDiagnostic(document: TextDocument, result: Object, moduleName: strin
 
 function anyModuleErrors(report: NpmListReport): boolean {
 	let problems: string[] = report['problems'];
-	let errorCount = 0;
 	if (problems) {
-		problems.forEach(each => {
-			if (each.startsWith('missing:') || each.startsWith('invalid:')) {
-				errorCount++;
-			}
-		});
+		return problems.find(each => {
+			return each.startsWith('missing:') || each.startsWith('invalid:') || each.startsWith('extraneous:');
+		}) !== undefined;
 	}
-	return errorCount > 0;
+	return false;
 }
 
 function collectDefinedDependencies(deps: DependencySourceRanges, node: Node) {
@@ -457,7 +519,7 @@ function runNpmCommand(args: string[], cwd?: string, alwaysRunInputWindow = fals
 	});
 }
 
-async function getInstalledModules():Promise<NpmListReport>  {
+async function getInstalledModules(): Promise<NpmListReport> {
 	return new Promise<NpmListReport>((resolve, reject) => {
 		let cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
 		let jsonResult = '';
@@ -471,7 +533,7 @@ async function getInstalledModules():Promise<NpmListReport>  {
 		p.stdout.on('data', (chunk: string) => jsonResult += chunk);
 		p.on('exit', (code, signal) => {
 			try {
-				let resp:NpmListReport = JSON.parse(jsonResult);
+				let resp: NpmListReport = JSON.parse(jsonResult);
 				resolve(resp);
 			} catch (e) {
 				reject(e);
