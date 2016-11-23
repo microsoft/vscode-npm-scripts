@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "Run npm scripts from the Command Palette",
 	"displayName": "npm Script Runner",
-	"version": "0.0.21",
+	"version": "0.1.0",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
