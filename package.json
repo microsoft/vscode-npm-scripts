@@ -137,6 +137,11 @@
 					"type": "string",
 					"default": "npm",
 					"description": "npm bin name"
+				},
+				"npm.validate.enable": {
+					"type": "boolean",
+					"default": true,
+					"description": "Validate installed modules"
 				}
 			}
 		}

@@ -123,7 +123,7 @@ class NpmCodeActionProvider implements CodeActionProvider {
 			if (diag.source === 'npm') {
 				let result = /^Module '(\S*)' is not installed/.exec(diag.message);
 				if (result) {
-					let [_, moduleName] = result;
+					let moduleName = result[1];
 					addFixNpmInstallModule(cmds, moduleName);
 					addFixNpmInstall(cmds);
 					addFixValidate(cmds);
@@ -131,14 +131,14 @@ class NpmCodeActionProvider implements CodeActionProvider {
 				}
 				result = /^Module '(\S*)' the installed version is invalid/.exec(diag.message);
 				if (result) {
-					let [_, moduleName] = result;
+					let moduleName = result[1];
 					addFixNpmInstallModule(cmds, moduleName);
 					addFixValidate(cmds);
 					return;
 				}
 				result = /^Module '(\S*)' is extraneous/.exec(diag.message);
 				if (result) {
-					let [_, moduleName] = result;
+					let moduleName = result[1];
 					addFixNpmUninstallModule(cmds, moduleName);
 					addFixNpmInstallModuleSave(cmds, moduleName);
 					addFixNpmInstallModuleSaveDev(cmds, moduleName);
@@ -158,6 +158,7 @@ let terminal: Terminal = null;
 let lastScript: Script = null;
 let diagnosticCollection: DiagnosticCollection;
 let delayer: ThrottledDelayer<void> = null;
+let validationEnabled = true;
 
 export function activate(context: ExtensionContext) {
 	registerCommands(context);
@@ -165,33 +166,13 @@ export function activate(context: ExtensionContext) {
 	diagnosticCollection = languages.createDiagnosticCollection('npm-script-runner');
 	context.subscriptions.push(diagnosticCollection);
 
+	workspace.onDidChangeConfiguration(event=>loadConfiguration(context), null, context.subscriptions);
+	loadConfiguration(context);
+
 	outputChannel = window.createOutputChannel('npm');
 	context.subscriptions.push(outputChannel);
 
 	context.subscriptions.push(languages.registerCodeActionsProvider('json', new NpmCodeActionProvider()));
-
-	workspace.onDidSaveTextDocument(document => {
-		validateDocument(document);
-	}, null, context.subscriptions);
-	window.onDidChangeActiveTextEditor(editor => {
-		if (editor && editor.document) {
-			validateDocument(editor.document);
-		}
-	}, null, context.subscriptions);
-
-	// for now do not remove the markers on close
-	// workspace.onDidCloseTextDocument(document => {
-	// 	diagnosticCollection.clear();
-	// }, null, context.subscriptions);
-
-	// workaround for onDidOpenTextDocument
-	// workspace.onDidOpenTextDocument(document => {
-	// 	console.log("onDidOpenTextDocument ", document.fileName);
-	// 	validateDocument(document);
-	// }, null, context.subscriptions);
-	validateAllDocuments();
-
-	context.subscriptions.push();
 }
 
 export function deactivate() {
@@ -200,8 +181,42 @@ export function deactivate() {
 	}
 }
 
+function loadConfiguration(context: ExtensionContext): void {
+	let section = workspace.getConfiguration('npm');
+	if (section) {
+		validationEnabled = section.get<boolean>('validate.enable', true);
+	}
+	diagnosticCollection.clear();
+
+	if (validationEnabled) {
+		workspace.onDidSaveTextDocument(document => {
+			validateDocument(document);
+		}, null, context.subscriptions);
+		window.onDidChangeActiveTextEditor(editor => {
+			if (editor && editor.document) {
+				validateDocument(editor.document);
+			}
+		}, null, context.subscriptions);
+
+		// for now do not remove the markers on close
+		// workspace.onDidCloseTextDocument(document => {
+		// 	diagnosticCollection.clear();
+		// }, null, context.subscriptions);
+
+		// workaround for onDidOpenTextDocument
+		// workspace.onDidOpenTextDocument(document => {
+		// 	console.log("onDidOpenTextDocument ", document.fileName);
+		// 	validateDocument(document);
+		// }, null, context.subscriptions);
+		validateAllDocuments();
+	}
+}
+
 function validateDocument(document: TextDocument) {
 	//console.log('validateDocument ', document.fileName);
+	if (!validationEnabled) {
+		return;
+	}
 	if (!document || path.basename(document.fileName) !== 'package.json') {
 		return;
 	}
