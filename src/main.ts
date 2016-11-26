@@ -57,9 +57,10 @@ interface SourceRanges {
 
 interface NpmDependencyReport {
 	[dependency: string]: {
-		invalid: boolean;
-		extraneous: boolean;
-		missing: boolean;
+		version: string;
+		invalid?: boolean;
+		extraneous?: boolean;
+		missing?: boolean;
 	};
 }
 
@@ -129,7 +130,7 @@ class NpmCodeActionProvider implements CodeActionProvider {
 					addFixValidate(cmds);
 					return;
 				}
-				result = /^Module '(\S*)' the installed version is invalid/.exec(diag.message);
+				result = /^Module '(\S*)' the installed version/.exec(diag.message);
 				if (result) {
 					let moduleName = result[1];
 					addFixNpmInstallModule(cmds, moduleName);
@@ -166,7 +167,7 @@ export function activate(context: ExtensionContext) {
 	diagnosticCollection = languages.createDiagnosticCollection('npm-script-runner');
 	context.subscriptions.push(diagnosticCollection);
 
-	workspace.onDidChangeConfiguration(event=>loadConfiguration(context), null, context.subscriptions);
+	workspace.onDidChangeConfiguration(event => loadConfiguration(context), null, context.subscriptions);
 	loadConfiguration(context);
 
 	outputChannel = window.createOutputChannel('npm');
@@ -217,13 +218,21 @@ function validateDocument(document: TextDocument) {
 	if (!validationEnabled) {
 		return;
 	}
-	if (!document || path.basename(document.fileName) !== 'package.json') {
+	// Currently only validate the top-level package.json
+	if (!isTopLevelPackageJson(document)) {
 		return;
 	}
 	if (!delayer) {
 		delayer = new ThrottledDelayer<void>(200);
 	}
 	delayer.trigger(() => doValidate(document));
+}
+
+function isTopLevelPackageJson(document: TextDocument) {
+	if (!document || !workspace.rootPath) {
+		return false;
+	}
+	return path.basename(document.fileName) === 'package.json' && path.dirname(document.fileName) === workspace.rootPath;
 }
 
 function validateAllDocuments() {
@@ -353,8 +362,9 @@ function getDiagnostic(document: TextDocument, result: Object, moduleName: strin
 			}
 			else if (result[each][moduleName]['invalid'] === true) {
 				let source = ranges.dependencies[moduleName].version;
+				let installedVersion = result[each][moduleName]['version'];
 				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-				diagnostic = new Diagnostic(range, `Module '${moduleName}' the installed version is invalid`, DiagnosticSeverity.Warning);
+				diagnostic = new Diagnostic(range, `Module '${moduleName}' the installed version '${installedVersion}' is invalid`, DiagnosticSeverity.Warning);
 			}
 			else if (result[each][moduleName]['extraneous'] === true) {
 				let source = null;
@@ -540,9 +550,7 @@ async function getInstalledModules(): Promise<NpmListReport> {
 		let jsonResult = '';
 		let errors = '';
 
-		let p = cp.exec(cmd, { cwd: workspace.rootPath, env: process.env }, (error: Error, stdout: string, stderr: string) => {
-			reject(error);
-		});
+		let p = cp.exec(cmd, { cwd: workspace.rootPath, env: process.env });
 
 		p.stderr.on('data', (chunk: string) => errors += chunk);
 		p.stdout.on('data', (chunk: string) => jsonResult += chunk);
