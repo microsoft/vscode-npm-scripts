@@ -65,6 +65,7 @@ interface NpmDependencyReport {
 }
 
 interface NpmListReport {
+	invalid: boolean;
 	problems: string[];
 	dependencies: NpmDependencyReport;
 }
@@ -301,6 +302,9 @@ async function doValidate(document: TextDocument) {
 
 		diagnosticCollection.clear();
 
+		if (report.invalid && report.invalid === true) {
+			return;
+		}
 		if (!anyModuleErrors(report)) {
 			return;
 		}
