@@ -297,9 +297,16 @@ function runNpmBuild() {
 }
 
 async function doValidate(document: TextDocument) {
-	try {
-		let report = await getInstalledModules();
+	let report = null;
 
+	try {
+		report = await getInstalledModules();
+	}catch (e) {
+		// could not run 'npm ls' do not validate the package.json
+		return;
+	}
+
+	try {
 		diagnosticCollection.clear();
 
 		if (report.invalid && report.invalid === true) {
@@ -325,7 +332,7 @@ async function doValidate(document: TextDocument) {
 		//console.log("diagnostic count ", diagnostics.length, " ", document.uri.fsPath);
 		diagnosticCollection.set(document.uri, diagnostics);
 	} catch (e) {
-		window.showInformationMessage(`Finding installed modules failed ` + e);
+		window.showInformationMessage(`[npm-script-runner] Cannot validate the package.json ` + e);
 	}
 }
 
