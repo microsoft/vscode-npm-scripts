@@ -1,3 +1,4 @@
+- 0.1.3 Guard against invalid package.json files issue [#77](https://github.com/Microsoft/vscode-npm-scripts/issues/27)
 - 0.1.0 added support for validating module dependencies
 - 0.0.21 added command to run `npm start`.
 - 0.0.20 when commands are run in the terminal, then the **integrated terminal** is used.
