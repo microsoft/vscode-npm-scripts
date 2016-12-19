@@ -565,7 +565,7 @@ async function getInstalledModules(): Promise<NpmListReport> {
 
 		p.stderr.on('data', (chunk: string) => errors += chunk);
 		p.stdout.on('data', (chunk: string) => jsonResult += chunk);
-		p.on('exit', (code, signal) => {
+		p.on('close', (code, signal) => {
 			try {
 				let resp: NpmListReport = JSON.parse(jsonResult);
 				resolve(resp);
