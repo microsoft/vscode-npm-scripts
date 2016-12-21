@@ -10,7 +10,7 @@ import {
 
 import { runInTerminal } from 'run-in-terminal';
 import { kill } from 'tree-kill';
-import { parseTree, Node, } from 'jsonc-parser';
+import { parseTree, Node, ParseError } from 'jsonc-parser';
 import { ThrottledDelayer } from './async';
 
 interface Script extends QuickPickItem {
@@ -333,13 +333,14 @@ async function doValidate(document: TextDocument) {
 		diagnosticCollection.set(document.uri, diagnostics);
 	} catch (e) {
 		window.showInformationMessage(`[npm-script-runner] Cannot validate the package.json ` + e);
+		console.log(`npm-script-runner: 'error while validating package.json stacktrace: ${e.stack}`);
 	}
 }
 
 function parseSourceRanges(text: string): SourceRanges {
 	let definedDependencies: DependencySourceRanges = {};
 	let properties: PropertySourceRanges = {};
-	let errors = [];
+	let errors:ParseError[] = [];
 	let node = parseTree(text, errors);
 
 	node.children.forEach(child => {
@@ -361,37 +362,49 @@ function parseSourceRanges(text: string): SourceRanges {
 	};
 }
 
-function getDiagnostic(document: TextDocument, result: Object, moduleName: string, ranges: SourceRanges): Diagnostic {
+function getDiagnostic(document: TextDocument, report: NpmDependencyReport, moduleName: string, ranges: SourceRanges): Diagnostic {
 	let diagnostic = null;
 
 	['dependencies', 'devDependencies'].forEach(each => {
-		if (result[each] && result[each][moduleName]) {
-			if (result[each][moduleName]['missing'] === true) {
-				let source = ranges.dependencies[moduleName].name;
-				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-				diagnostic = new Diagnostic(range, `Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
-			}
-			else if (result[each][moduleName]['invalid'] === true) {
-				let source = ranges.dependencies[moduleName].version;
-				let installedVersion = result[each][moduleName]['version'];
-				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-				diagnostic = new Diagnostic(range, `Module '${moduleName}' the installed version '${installedVersion}' is invalid`, DiagnosticSeverity.Warning);
-			}
-			else if (result[each][moduleName]['extraneous'] === true) {
-				let source = null;
-				if (ranges.properties['dependencies']) {
-					source = ranges.properties['dependencies'].name;
-				} else if (ranges.properties['devDependencies']) {
-					source = ranges.properties['devDependencies'].name;
-				} else if (ranges.properties['name']) {
-					source = ranges.properties['name'].name;
+		if (report[each] && report[each][moduleName]) {
+			if (report[each][moduleName]['missing'] === true) {
+				if (ranges.dependencies[moduleName]) {
+					let source = ranges.dependencies[moduleName].name;
+					let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
+					diagnostic = new Diagnostic(range, `Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
 				}
+			}
+			else if (report[each][moduleName]['invalid'] === true) {
+				if (ranges.dependencies[moduleName]) {
+					let source = ranges.dependencies[moduleName].version;
+					let installedVersion = report[each][moduleName]['version'];
+					let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
+					diagnostic = new Diagnostic(range, `Module '${moduleName}' the installed version '${installedVersion}' is invalid`, DiagnosticSeverity.Warning);
+				}
+			}
+			else if (report[each][moduleName]['extraneous'] === true) {
+				let source = findAttributeRange(ranges);
 				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
 				diagnostic = new Diagnostic(range, `Module '${moduleName}' is extraneous`, DiagnosticSeverity.Warning);
 			}
 		}
 	});
 	return diagnostic;
+}
+
+function findAttributeRange(ranges: SourceRanges): { offset: number, length: number } {
+	let source = null;
+	if (ranges.properties['dependencies']) {
+		source = ranges.properties['dependencies'].name;
+	} else if (ranges.properties['devDependencies']) {
+		source = ranges.properties['devDependencies'].name;
+	} else if (ranges.properties['name']) {
+		source = ranges.properties['name'].name;
+	} else {
+		// no attribute to attach the diagnostic to found, attach the diagnostic to the top of the file
+		source = { offset: 0, length: 1 };
+	}
+	return source;
 }
 
 function anyModuleErrors(report: NpmListReport): boolean {
