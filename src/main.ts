@@ -372,6 +372,8 @@ function getDiagnostic(document: TextDocument, report: NpmDependencyReport, modu
 					let source = ranges.dependencies[moduleName].name;
 					let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
 					diagnostic = new Diagnostic(range, `Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
+				} else {
+					console.log(`[npm-script] Could not locate "missing" dependency '${moduleName}' in package.json`)
 				}
 			}
 			else if (report[each][moduleName]['invalid'] === true) {
@@ -379,7 +381,12 @@ function getDiagnostic(document: TextDocument, report: NpmDependencyReport, modu
 					let source = ranges.dependencies[moduleName].version;
 					let installedVersion = report[each][moduleName]['version'];
 					let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-					diagnostic = new Diagnostic(range, `Module '${moduleName}' the installed version '${installedVersion}' is invalid`, DiagnosticSeverity.Warning);
+					let message = installedVersion ?
+						`Module '${moduleName}' the installed version '${installedVersion}' is invalid`:
+						`Module '${moduleName}' the installed version is invalid or has errors`;
+					diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
+				} else {
+					console.log(`[npm-script] Could not locate "invalid" dependency '${moduleName}' in package.json`)
 				}
 			}
 			else if (report[each][moduleName]['extraneous'] === true) {
