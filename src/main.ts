@@ -2,10 +2,13 @@ import * as cp from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 
+
+
 import {
 	window, commands, workspace, languages, OutputChannel, ExtensionContext, ViewColumn,
 	QuickPickItem, Terminal, DiagnosticCollection, Diagnostic, Range, TextDocument, DiagnosticSeverity,
-	CodeActionProvider, CodeActionContext, CancellationToken, Command
+	CodeActionProvider, CodeActionContext, CancellationToken, Command,
+	StatusBarAlignment
 } from 'vscode';
 
 import { runInTerminal } from 'run-in-terminal';
@@ -161,6 +164,7 @@ let lastScript: Script = null;
 let diagnosticCollection: DiagnosticCollection;
 let delayer: ThrottledDelayer<void> = null;
 let validationEnabled = true;
+let statusBarItem = null;
 
 export function activate(context: ExtensionContext) {
 	registerCommands(context);
@@ -175,12 +179,14 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(outputChannel);
 
 	context.subscriptions.push(languages.registerCodeActionsProvider('json', new NpmCodeActionProvider()));
+
 }
 
 export function deactivate() {
 	if (terminal) {
 		terminal.dispose();
 	}
+	manageStatusBarItem('hide');
 }
 
 function loadConfiguration(context: ExtensionContext): void {
@@ -188,6 +194,7 @@ function loadConfiguration(context: ExtensionContext): void {
 	if (section) {
 		validationEnabled = section.get<boolean>('validate.enable', true);
 	}
+	manageStatusBarItem();
 	diagnosticCollection.clear();
 
 	if (validationEnabled) {
@@ -211,6 +218,33 @@ function loadConfiguration(context: ExtensionContext): void {
 		// 	validateDocument(document);
 		// }, null, context.subscriptions);
 		validateAllDocuments();
+	}
+}
+
+function manageStatusBarItem(action?: string) {
+	let show = null;
+	if (action === 'show') {
+		show = true;
+	} else if (action === 'hide') {
+		show = false;
+	} else {
+		let section = workspace.getConfiguration('npm');
+		if (section) {
+			show = section.get<boolean>('showStatusBarItem', true);
+		}
+	}
+	if (!statusBarItem && show) {
+		statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
+		statusBarItem.text = 'npm scripts';
+		statusBarItem.command = "npm-script.run";
+	}
+	if (statusBarItem) {
+		if (show) {
+			statusBarItem.show();
+		} else {
+			statusBarItem.dispose();
+			statusBarItem = null;
+		}
 	}
 }
 
@@ -259,7 +293,8 @@ function registerCommands(context: ExtensionContext) {
 		commands.registerCommand('npm-script.installInOutputWindow', runNpmInstallInOutputWindow),
 		commands.registerCommand('npm-script.uninstallInOutputWindow', runNpmUninstallInOutputWindow),
 		commands.registerCommand('npm-script.validate', validateAllDocuments),
-		commands.registerCommand('npm-script.terminate-script', terminateScript)
+		commands.registerCommand('npm-script.terminate-script', terminateScript),
+		commands.registerCommand('npm-script.show-status-item', manageStatusBarItem)
 	);
 }
 

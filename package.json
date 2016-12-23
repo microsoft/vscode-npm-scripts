@@ -27,6 +27,7 @@
 		"onCommand:npm-script.rerun-last-script",
 		"onCommand:npm-script.terminate-script",
 		"onCommand:npm-script.test",
+		"onCommand:npm-script.show-status-item",
 		"onCommand:npm-script.start"
 	],
 	"main": "./out/src/main",
@@ -70,6 +71,11 @@
 			{
 				"command": "npm-script.build",
 				"title": "Run Build",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.show-status-item",
+				"title": "Activate status bar item",
 				"category": "npm"
 			}
 		],
@@ -142,6 +148,11 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Validate installed modules"
+				},
+				"npm.showStatusBarItem": {
+					"type": "boolean",
+					"default": true,
+					"description": "Show status bar item which is a shortcut for 'Run Script' command"
 				}
 			}
 		}
