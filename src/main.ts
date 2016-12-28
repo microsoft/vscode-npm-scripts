@@ -76,7 +76,7 @@ class NpmCodeActionProvider implements CodeActionProvider {
 			cmds.push({
 				title: `run: npm install '${moduleName}'`,
 				command: 'npm-script.installInOutputWindow',
-				arguments: [moduleName]
+				arguments: [path.dirname(document.fileName), moduleName]
 			});
 		}
 
@@ -84,7 +84,7 @@ class NpmCodeActionProvider implements CodeActionProvider {
 			cmds.push({
 				title: `run: npm install`,
 				command: 'npm-script.installInOutputWindow',
-				arguments: []
+				arguments: [path.dirname(document.fileName)]
 			});
 		}
 
@@ -92,7 +92,7 @@ class NpmCodeActionProvider implements CodeActionProvider {
 			cmds.push({
 				title: `validate installed modules`,
 				command: 'npm-script.validate',
-				arguments: []
+				arguments: [path.dirname(document.fileName)]
 			});
 		}
 
@@ -100,7 +100,7 @@ class NpmCodeActionProvider implements CodeActionProvider {
 			cmds.push({
 				title: `run: npm uninstall '${moduleName}'`,
 				command: 'npm-script.uninstallInOutputWindow',
-				arguments: [moduleName]
+				arguments: [path.dirname(document.fileName), moduleName]
 			});
 		}
 
@@ -108,7 +108,7 @@ class NpmCodeActionProvider implements CodeActionProvider {
 			cmds.push({
 				title: `run: npm install '${moduleName}' --save`,
 				command: 'npm-script.installInOutputWindow',
-				arguments: [moduleName, '--save']
+				arguments: [path.dirname(document.fileName), moduleName, '--save']
 			});
 		}
 
@@ -116,7 +116,7 @@ class NpmCodeActionProvider implements CodeActionProvider {
 			cmds.push({
 				title: `run: npm install '${moduleName}' --save-dev`,
 				command: 'npm-script.installInOutputWindow',
-				arguments: [moduleName, '--save-dev']
+				arguments: [path.dirname(document.fileName), moduleName, '--save-dev']
 			});
 		}
 
@@ -219,8 +219,19 @@ function validateDocument(document: TextDocument) {
 	if (!validationEnabled) {
 		return;
 	}
-	// Currently only validate the top-level package.json
-	if (!isTopLevelPackageJson(document)) {
+	if (!isPackageJson(document)) {
+		return;
+	}
+	let found = false;
+	// Iterating over defined package directories to check
+	// if currently opened package.json is the one we whitelist.
+	for (let dir of getIncludedDirectories()) {
+		found = found || path.dirname(document.fileName) === dir;
+		if (found) {
+			break;
+		}
+	}
+	if (!found) {
 		return;
 	}
 	if (!delayer) {
@@ -229,11 +240,8 @@ function validateDocument(document: TextDocument) {
 	delayer.trigger(() => doValidate(document));
 }
 
-function isTopLevelPackageJson(document: TextDocument) {
-	if (!document || !workspace.rootPath) {
-		return false;
-	}
-	return path.basename(document.fileName) === 'package.json' && path.dirname(document.fileName) === workspace.rootPath;
+function isPackageJson(document: TextDocument) {
+	return document && path.basename(document.fileName) === 'package.json'
 }
 
 function validateAllDocuments() {
@@ -263,49 +271,233 @@ function registerCommands(context: ExtensionContext) {
 	);
 }
 
-function runNpmInstall() {
-	let dirs = getIncludedDirectories();
-	for (let dir of dirs) {
-		runNpmCommand(['install'], dir);
+function runNpmCommand(args: string[], cwd?: string, alwaysRunInputWindow = false): void {
+	if (runSilent()) {
+		args.push('--silent');
 	}
+	workspace.saveAll().then(() => {
+		if (!cwd) {
+			cwd = workspace.rootPath;
+		}
+
+		if (useTerminal() && !alwaysRunInputWindow) {
+			if (typeof window.createTerminal === 'function') {
+				runCommandInIntegratedTerminal(args, cwd);
+			} else {
+				runCommandInTerminal(args, cwd);
+			}
+		} else {
+			outputChannel.clear();
+			runCommandInOutputWindow(args, cwd);
+		}
+	});
 }
 
-function runNpmInstallInOutputWindow(arg1, arg2) {
-	let dirs = getIncludedDirectories();
-	for (let dir of dirs) {
-		runNpmCommand(['install', arg1, arg2], dir, true);
+function pickScriptToExecute(descriptions: any[], command: string[], allowAll=false, alwaysRunInputWindow=false) {
+	let scriptList: Script[] = [];
+	let isScriptCommand = command[0] === 'run-script';
+
+	if (allowAll && descriptions.length > 1) {
+		scriptList.push({
+			label: "All",
+			description: "Run all " + (isScriptCommand ? "scripts" : "commands") + " listed below",
+			scriptName: "Dummy",
+			cwd: null,
+			execute() {
+				for (let s of scriptList) {
+					//null cwd is a protection to prevent calling it itself.
+					if (s.cwd) {
+						s.execute();
+					}
+				}
+			}
+		});
 	}
+	for (let s of descriptions) {
+		let label = s.name;
+		if (s.relativePath) {
+			label = `${s.relativePath}: ${label}`;
+		}
+		scriptList.push({
+			label: label,
+			description: s.cmd,
+			scriptName: s.name,
+			cwd: s.absolutePath,
+			execute() {
+				let script = this.scriptName;
+				// quote the script name, when it contains white space
+				if (/\s/g.test(script)) {
+					script = `"${script}"`;
+				}
+				//Create copy of command to make sure that we always get the right command when script is rerun.
+				let cmd = Array.from(command);
+				if (isScriptCommand) {
+					lastScript = this;
+					//Add script name to command array
+					cmd.push(script);
+				}
+				runNpmCommand(cmd, this.cwd, alwaysRunInputWindow);
+			}
+		});
+	}
+
+	if (scriptList.length == 1) {
+		scriptList[0].execute();
+		return
+	}
+	else if (scriptList.length == 0) {
+		if (isScriptCommand) {
+			window.showErrorMessage(`Failed to find script with "${command[1]}" command`);
+		} else {
+			window.showErrorMessage(`Failed to find handler for "${command[0]}" commnd`);
+		}
+		return;
+	}
+	window.showQuickPick(scriptList).then(script => {
+		if (script) {
+			script.execute();
+		}
+	});
 }
 
-function runNpmUninstallInOutputWindow(arg) {
-	let dirs = getIncludedDirectories();
-	for (let dir of dirs) {
-		runNpmCommand(['uninstall', arg], dir, true);
+/**
+  * Executes npm command in package directory (or in all possible) based on user's choice.
+
+  * @param command Command name.
+  * @param allowAll Allows to run command in all possible locations, otherwise user must pick one location.
+  * @param dirs Array of directories used to determine locations for running command.
+        When nothing is passed getIncludedDirectories function is used to get list of directories.
+  */
+function runNpmCommandInPackages(command: string[], allowAll = false,
+								 alwaysRunInputWindow = false, dirs?: string[]) {
+	let descriptions = commandsDescriptions(command, dirs);
+	pickScriptToExecute(descriptions, command, allowAll, alwaysRunInputWindow);
+}
+
+/**
+  * Executes npm command along with it's arguments.
+  * @param cmd Command name.
+  * @param _arguments Array of command arguments that will be passed to npm command.
+  *  Note: First argument must be path to directory where command will be executed.
+  */
+function runNpmCommandWithArguments(cmd, _arguments) {
+	let args = [].slice.call(_arguments);
+	let dir = args.shift();
+	args.unshift(cmd);
+	runNpmCommand(args, dir);
+}
+
+function runNpmInstall(arg) {
+	let dirs = [];
+	//This if handles command from context menu.
+	if (arg && arg.fsPath) {
+		dirs.push(path.dirname(arg.fsPath));
+	} else {
+		dirs = getIncludedDirectories();
 	}
+	runNpmCommandInPackages(['install'], true, false, dirs);
+}
+
+function runNpmInstallInOutputWindow() {
+	runNpmCommandWithArguments('install', arguments);
+}
+
+function runNpmUninstallInOutputWindow() {
+	runNpmCommandWithArguments('uninstall', arguments);
 }
 
 function runNpmTest() {
-	runNpmCommand(['test']);
+	runNpmCommandInPackages(['run-script', 'test'], true);
 }
 
 function runNpmStart() {
-	runNpmCommand(['start']);
+	runNpmCommandInPackages(['start'], true);
 }
 
 function runNpmBuild() {
-	runNpmCommand(['run-script', 'build']);
+	runNpmCommandInPackages(['build'], true);
+}
+
+function runNpmScript(): void {
+	runNpmCommandInPackages(['run-script'], false);
+};
+
+function rerunLastScript(): void {
+	if (lastScript) {
+		lastScript.execute();
+	} else {
+		runNpmScript();
+	}
+}
+
+/**
+ * Adds entries to description parameter based on passed command and package path.
+ * Function has two scenarios (based on given command name):
+ *  - Adds entry with command, it's name and paths (absolute and relative to workspace).
+ *  - When command equals to 'run-script' it reads package.json and generates entries:
+ *    - with all script names (when there is no script name defined),
+ *    - with scripts that matches name.
+ */
+function commandsDescriptionsInPackage(param: string[], package_path, descriptions) {
+	var absolutePath = package_path;
+	var relativePath = absolutePath.substring(workspace.rootPath.length + 1);
+	let cmd = param[0];
+	let name = param[1];
+
+	if (cmd === 'run-script') {
+		try {
+			let fileName = path.join(package_path, 'package.json');
+			let contents = fs.readFileSync(fileName).toString();
+			let json = JSON.parse(contents);
+			if (json.scripts) {
+				var jsonScripts = json.scripts;
+				Object.keys(jsonScripts).forEach(key => {
+					if (!name || key === name) {
+						descriptions.push({
+							absolutePath: absolutePath,
+							relativePath: relativePath,
+							name: `${key}`,
+							cmd: `${cmd} ${jsonScripts[key]}`
+						});
+					}
+				});
+			}
+		} catch (e) {
+		}
+	} else {
+		descriptions.push({
+			absolutePath: absolutePath,
+			relativePath: relativePath,
+			name: `${cmd}`,
+			cmd: `npm ${cmd}`
+		});
+	}
+}
+
+/**
+ * Returns descriptions based on given command and directories.
+ */
+function commandsDescriptions(command: string[], dirs?: string[]): any {
+	if (!dirs) {
+		dirs = getIncludedDirectories();
+	}
+	let descriptions = [];
+	for (let dir of dirs) {
+		commandsDescriptionsInPackage(command, dir, descriptions);
+	}
+
+	return descriptions;
 }
 
 async function doValidate(document: TextDocument) {
 	let report = null;
 
 	try {
-		report = await getInstalledModules();
+		report = await getInstalledModules(path.dirname(document.fileName));
 	}catch (e) {
 		// could not run 'npm ls' do not validate the package.json
 		return;
 	}
-
 	try {
 		diagnosticCollection.clear();
 
@@ -451,50 +643,6 @@ function showNpmOutput(): void {
 	outputChannel.show(ViewColumn.Three);
 }
 
-function runNpmScript(): void {
-	let scripts = readScripts();
-	if (!scripts) {
-		return;
-	}
-	let scriptList: Script[] = [];
-	for (let s of scripts) {
-		let label = s.name;
-		if (s.relativePath) {
-			label = `${s.relativePath}: ${label}`;
-		}
-		scriptList.push({
-			label: label,
-			description: s.cmd,
-			scriptName: s.name,
-			cwd: s.absolutePath,
-			execute() {
-				lastScript = this;
-				let script = this.scriptName;
-				// quote the script name, when it contains white space
-				if (/\s/g.test(script)) {
-					script = `"${script}"`;
-				}
-				let command = ['run-script', script];
-				runNpmCommand(command, this.cwd);
-			}
-		});
-	}
-
-	window.showQuickPick(scriptList).then(script => {
-		if (script) {
-			return script.execute();
-		}
-	});
-};
-
-function rerunLastScript(): void {
-	if (lastScript) {
-		lastScript.execute();
-	} else {
-		runNpmScript();
-	}
-}
-
 function terminateScript(): void {
 	if (useTerminal()) {
 		window.showInformationMessage('Killing is only supported when the setting "runInTerminal" is "false"');
@@ -516,72 +664,16 @@ function terminateScript(): void {
 	}
 }
 
-function readScripts(): any {
-	let includedDirectories = getIncludedDirectories();
-	let scripts = [];
-	let fileName = "";
-	let dir: string;
-	for (dir of includedDirectories) {
-		try {
-			fileName = path.join(dir, 'package.json');
-			let contents = fs.readFileSync(fileName).toString();
-			let json = JSON.parse(contents);
-			if (json.scripts) {
-				var jsonScripts = json.scripts;
-				var absolutePath = dir;
-				var relativePath = absolutePath.substring(workspace.rootPath.length + 1);
-				Object.keys(jsonScripts).forEach(key => {
-					scripts.push({
-						absolutePath: absolutePath,
-						relativePath: relativePath,
-						name: `${key}`,
-						cmd: `${jsonScripts[key]}`
-					});
-				});
-			}
-		} catch (e) {
-			window.showInformationMessage(`Cannot read '${fileName}'`);
-			return undefined;
-		}
-	}
-
-	if (scripts.length === 0) {
-		window.showInformationMessage('No scripts are defined');
-		return undefined;
-	}
-
-	return scripts;
-}
-
-function runNpmCommand(args: string[], cwd?: string, alwaysRunInputWindow = false): void {
-	if (runSilent()) {
-		args.push('--silent');
-	}
-	workspace.saveAll().then(() => {
-		if (!cwd) {
-			cwd = workspace.rootPath;
-		}
-
-		if (useTerminal() && !alwaysRunInputWindow) {
-			if (typeof window.createTerminal === 'function') {
-				runCommandInIntegratedTerminal(args, cwd);
-			} else {
-				runCommandInTerminal(args, cwd);
-			}
-		} else {
-			outputChannel.clear();
-			runCommandInOutputWindow(args, cwd);
-		}
-	});
-}
-
-async function getInstalledModules(): Promise<NpmListReport> {
+async function getInstalledModules(package_dir?: string): Promise<NpmListReport> {
 	return new Promise<NpmListReport>((resolve, reject) => {
+		if (!package_dir) {
+			package_dir = workspace.rootPath;
+		}
 		let cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
 		let jsonResult = '';
 		let errors = '';
 
-		let p = cp.exec(cmd, { cwd: workspace.rootPath, env: process.env });
+		let p = cp.exec(cmd, { cwd: package_dir, env: process.env });
 
 		p.stderr.on('data', (chunk: string) => errors += chunk);
 		p.stdout.on('data', (chunk: string) => jsonResult += chunk);
@@ -630,12 +722,16 @@ function runCommandInTerminal(args: string[], cwd: string): void {
 }
 
 function runCommandInIntegratedTerminal(args: string[], cwd: string): void {
+	let cmd_args = Array.from(args);
 	if (!terminal) {
 		terminal = window.createTerminal('npm');
 	}
 	terminal.show();
-	args.splice(0, 0, getNpmBin());
-	terminal.sendText(args.join(' '));
+	if (cwd) {
+		terminal.sendText(['cd', cwd].join(' '));
+	}
+	cmd_args.splice(0, 0, getNpmBin());
+	terminal.sendText(cmd_args.join(' '));
 }
 
 function useTerminal() {

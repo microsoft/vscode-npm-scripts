@@ -1,0 +1,8 @@
+{
+	"name": "vscode-npm-script-test-includeDirectories",
+	"description": "Testing npm.includeDirectories part 1",
+	"scripts": {
+		"test": "npm config get tag",
+		"folder1-shell": "npm config get shell"
+	}
+}
