@@ -1,3 +1,4 @@
+- 0.1.6 Fully support the `includeDirectories` setting, issue [#24](https://github.com/Microsoft/vscode-npm-scripts/issues/24)
 - 0.1.4/0.1.5 Handle the case that npm is not installed more gracefully
 - 0.1.3 Guard against invalid package.json files issue [#77](https://github.com/Microsoft/vscode-npm-scripts/issues/77)
 - 0.1.0 added support for validating module dependencies
