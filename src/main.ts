@@ -315,7 +315,7 @@ function createAllCommand(scriptList: Script[], isScriptCommand: boolean): Scrip
 	};
 }
 
-function pickScriptToExecute(descriptions: any[], command: string[], allowAll = false, alwaysRunInputWindow = false) {
+function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: string[], allowAll = false, alwaysRunInputWindow = false) {
 	let scriptList: Script[] = [];
 	let isScriptCommand = command[0] === 'run-script';
 
@@ -338,7 +338,7 @@ function pickScriptToExecute(descriptions: any[], command: string[], allowAll = 
 				if (/\s/g.test(script)) {
 					script = `"${script}"`;
 				}
-				//Create copy of command to make sure that we always get the right command when script is rerun.
+				// Create copy of command to ensure that we always get the correct command when the script is rerun.
 				let cmd = Array.from(command);
 				if (isScriptCommand) {
 					lastScript = this;
@@ -369,11 +369,11 @@ function pickScriptToExecute(descriptions: any[], command: string[], allowAll = 
 }
 
 /**
-  * Executes an npm command in a package directory (or in all possible directories) based on the user's choice.
+  * Executes an npm command in a package directory (or in all possible directories).
   * @param command Command name.
-  * @param allowAll Allows to run command in all possible locations, otherwise user must pick one location.
-  * @param dirs Array of directories used to determine locations for running command.
-        When nothing is passed getIncludedDirectories function is used to get list of directories.
+  * @param allowAll Allow to run the command in all possible directory locations, otherwise the user must pick a location.
+  * @param dirs Array of directories used to determine locations for running the command.
+        When no argument is passed then `getIncludedDirectories` is used to get list of directories.
   */
 function runNpmCommandInPackages(command: string[], allowAll = false, alwaysRunInputWindow = false, dirs?: string[]) {
 	let descriptions = commandsDescriptions(command, dirs);
@@ -383,8 +383,8 @@ function runNpmCommandInPackages(command: string[], allowAll = false, alwaysRunI
 /**
   * Executes an npm command with it's arguments.
   * @param cmd Command name.
-  * @param args Array of command arguments that will be passed to npm command.
-  *  Note: First argument must be path to directory where command will be executed.
+  * @param args Array of command arguments, they will be passed to the npm command.
+  *  Note: The first argument must be the path to the directory where the command will be executed.
   */
 function runNpmCommandWithArguments(cmd:string, ...args: any[]) {
 	let cmdArgs = [].slice.call(args);
@@ -437,12 +437,12 @@ function rerunLastScript(): void {
 }
 
 /**
- * Adds entries to the description argument based on the passed command and package path.
- * The function has two scenarios (based on given command name):
+ * Adds entries to the `description` argument based on the passed command and the package path.
+ * The function has two scenarios (based on a given command name):
  *  - Adds entry with the command, it's name and paths (absolute and relative to workspace).
  *  - When the command equals to 'run-script' it reads the `package.json` and generates entries:
  *    - with all script names (when there is no script name defined),
- *    - with scripts that matches name.
+ *    - with scripts that matche the name.
  */
 function commandDescriptionsInPackage(param: string[], packagePath: string, descriptions: ScriptCommandDescription[]) {
 	var absolutePath = packagePath;
@@ -480,9 +480,6 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 	}
 }
 
-/**
- * Returns command descriptions based on the given command and directories.
- */
 function commandsDescriptions(command: string[], dirs?: string[]): ScriptCommandDescription[] {
 	if (!dirs) {
 		dirs = getIncludedDirectories();
