@@ -381,7 +381,7 @@ function runNpmCommandInPackages(command: string[], allowAll = false, alwaysRunI
 }
 
 /**
-  * Executes an npm command with it's arguments.
+  * Executes an npm command with its arguments.
   * @param cmd Command name.
   * @param args Array of command arguments, they will be passed to the npm command.
   *  Note: The first argument must be the path to the directory where the command will be executed.
