@@ -1,5 +1,5 @@
 {
-	"name": "vscode-npm-script-test-includeDirectories",
+	"name": "vscode-npm-script-test-include-directories",
 	"description": "Testing npm.includeDirectories part 2",
 	"scripts": {
 		"test": "npm config get node-version",
