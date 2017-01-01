@@ -312,7 +312,7 @@ function createAllCommand(scriptList: Script[], isScriptCommand: boolean): Scrip
 				}
 			}
 		}
-	}
+	};
 }
 
 function pickScriptToExecute(descriptions: any[], command: string[], allowAll = false, alwaysRunInputWindow = false) {
