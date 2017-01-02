@@ -131,12 +131,12 @@ class NpmCodeActionProvider implements CodeActionProvider {
 			});
 		}
 
-		let cmds: Command[] = [];
+		const cmds: Command[] = [];
 		context.diagnostics.forEach(diag => {
 			if (diag.source === 'npm') {
 				let result = /^Module '(\S*)' is not installed/.exec(diag.message);
 				if (result) {
-					let moduleName = result[1];
+					const moduleName = result[1];
 					addFixNpmInstallModule(cmds, moduleName);
 					addFixNpmInstall(cmds);
 					addFixValidate(cmds);
@@ -144,14 +144,14 @@ class NpmCodeActionProvider implements CodeActionProvider {
 				}
 				result = /^Module '(\S*)' the installed version/.exec(diag.message);
 				if (result) {
-					let moduleName = result[1];
+					const moduleName = result[1];
 					addFixNpmInstallModule(cmds, moduleName);
 					addFixValidate(cmds);
 					return;
 				}
 				result = /^Module '(\S*)' is extraneous/.exec(diag.message);
 				if (result) {
-					let moduleName = result[1];
+					const moduleName = result[1];
 					addFixNpmUninstallModule(cmds, moduleName);
 					addFixNpmInstallModuleSave(cmds, moduleName);
 					addFixNpmInstallModuleSaveDev(cmds, moduleName);
@@ -195,7 +195,7 @@ export function deactivate() {
 }
 
 function loadConfiguration(context: ExtensionContext): void {
-	let section = workspace.getConfiguration('npm');
+	const section = workspace.getConfiguration('npm');
 	if (section) {
 		validationEnabled = section.get<boolean>('validate.enable', true);
 	}
@@ -235,7 +235,7 @@ function validateDocument(document: TextDocument) {
 	}
 	// Iterate over the defined package directories to check
 	// if the currently opened `package.json` is one that is included in the `includedDirectories` setting.
-	let found = getIncludedDirectories().find(each => path.dirname(document.fileName) === each);
+	const found = getIncludedDirectories().find(each => path.dirname(document.fileName) === each);
 	if (!found) {
 		return;
 	}
@@ -305,7 +305,7 @@ function createAllCommand(scriptList: Script[], isScriptCommand: boolean): Scrip
 		scriptName: "Dummy",
 		cwd: null,
 		execute(this: Script) {
-			for (let s of scriptList) {
+			for (const s of scriptList) {
 				// check for null ``cwd to prevent calling the function by itself.
 				if (s.cwd) {
 					s.execute();
@@ -316,13 +316,13 @@ function createAllCommand(scriptList: Script[], isScriptCommand: boolean): Scrip
 }
 
 function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: string[], allowAll = false, alwaysRunInputWindow = false) {
-	let scriptList: Script[] = [];
-	let isScriptCommand = command[0] === 'run-script';
+	const scriptList: Script[] = [];
+	const isScriptCommand = command[0] === 'run-script';
 
 	if (allowAll && descriptions.length > 1) {
 		scriptList.push(createAllCommand(scriptList, isScriptCommand));
 	}
-	for (let s of descriptions) {
+	for (const s of descriptions) {
 		let label = s.name;
 		if (s.relativePath) {
 			label = `${s.relativePath}: ${label}`;
@@ -339,7 +339,7 @@ function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: 
 					script = `"${script}"`;
 				}
 				// Create copy of command to ensure that we always get the correct command when the script is rerun.
-				let cmd = Array.from(command);
+				const cmd = Array.from(command);
 				if (isScriptCommand) {
 					lastScript = this;
 					//Add script name to command array
@@ -376,7 +376,7 @@ function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: 
         When no argument is passed then `getIncludedDirectories` is used to get list of directories.
   */
 function runNpmCommandInPackages(command: string[], allowAll = false, alwaysRunInputWindow = false, dirs?: string[]) {
-	let descriptions = commandsDescriptions(command, dirs);
+	const descriptions = commandsDescriptions(command, dirs);
 	pickScriptToExecute(descriptions, command, allowAll, alwaysRunInputWindow);
 }
 
@@ -387,8 +387,8 @@ function runNpmCommandInPackages(command: string[], allowAll = false, alwaysRunI
   *  Note: The first argument must be the path to the directory where the command will be executed.
   */
 function runNpmCommandWithArguments(cmd:string, ...args: any[]) {
-	let cmdArgs = [].slice.call(args);
-	let dir = cmdArgs.shift();
+	const cmdArgs = [].slice.call(args);
+	const dir = cmdArgs.shift();
 	cmdArgs.unshift(cmd);
 	runNpmCommand(cmdArgs, dir);
 }
@@ -447,14 +447,14 @@ function rerunLastScript(): void {
 function commandDescriptionsInPackage(param: string[], packagePath: string, descriptions: ScriptCommandDescription[]) {
 	var absolutePath = packagePath;
 	var relativePath = absolutePath.substring(workspace.rootPath.length + 1);
-	let cmd = param[0];
-	let name = param[1];
+	const cmd = param[0];
+	const name = param[1];
 
 	if (cmd === 'run-script') {
 		try {
-			let fileName = path.join(packagePath, 'package.json');
-			let contents = fs.readFileSync(fileName).toString();
-			let json = JSON.parse(contents);
+			const fileName = path.join(packagePath, 'package.json');
+			const contents = fs.readFileSync(fileName).toString();
+			const json = JSON.parse(contents);
 			if (json.scripts) {
 				var jsonScripts = json.scripts;
 				Object.keys(jsonScripts).forEach(key => {
@@ -484,7 +484,7 @@ function commandsDescriptions(command: string[], dirs?: string[]): ScriptCommand
 	if (!dirs) {
 		dirs = getIncludedDirectories();
 	}
-	let descriptions:ScriptCommandDescription[] = [];
+	const descriptions:ScriptCommandDescription[] = [];
 	dirs.forEach(dir => commandDescriptionsInPackage(command, dir, descriptions));
 	return descriptions;
 }
@@ -508,13 +508,13 @@ async function doValidate(document: TextDocument) {
 			return;
 		}
 
-		let sourceRanges = parseSourceRanges(document.getText());
-		let dependencies = report.dependencies;
-		let diagnostics: Diagnostic[] = [];
+		const sourceRanges = parseSourceRanges(document.getText());
+		const dependencies = report.dependencies;
+		const diagnostics: Diagnostic[] = [];
 
 		for (var moduleName in dependencies) {
 			if (dependencies.hasOwnProperty(moduleName)) {
-				let diagnostic = getDiagnostic(document, report, moduleName, sourceRanges);
+				const diagnostic = getDiagnostic(document, report, moduleName, sourceRanges);
 				if (diagnostic) {
 					diagnostic.source = 'npm';
 					diagnostics.push(diagnostic);
@@ -530,14 +530,14 @@ async function doValidate(document: TextDocument) {
 }
 
 function parseSourceRanges(text: string): SourceRanges {
-	let definedDependencies: DependencySourceRanges = {};
-	let properties: PropertySourceRanges = {};
-	let errors:ParseError[] = [];
-	let node = parseTree(text, errors);
+	const definedDependencies: DependencySourceRanges = {};
+	const properties: PropertySourceRanges = {};
+	const errors:ParseError[] = [];
+	const node = parseTree(text, errors);
 
 	node.children.forEach(child => {
-		let children = child.children;
-		let property = children[0];
+		const children = child.children;
+		const property = children[0];
 		properties[property.value] = {
 			name: {
 				offset: property.offset,
@@ -561,8 +561,8 @@ function getDiagnostic(document: TextDocument, report: NpmListReport, moduleName
 	if (report.dependencies && report.dependencies[moduleName]) {
 		if (report.dependencies[moduleName]['missing'] === true) {
 			if (ranges.dependencies[moduleName]) {
-				let source = ranges.dependencies[moduleName].name;
-				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
+				const source = ranges.dependencies[moduleName].name;
+				const range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
 				diagnostic = new Diagnostic(range, `Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
 			} else {
 				console.log(`[npm-script] Could not locate "missing" dependency '${moduleName}' in package.json`);
@@ -570,10 +570,10 @@ function getDiagnostic(document: TextDocument, report: NpmListReport, moduleName
 		}
 		else if (report.dependencies[moduleName]['invalid'] === true) {
 			if (ranges.dependencies[moduleName]) {
-				let source = ranges.dependencies[moduleName].version;
-				let installedVersion = report.dependencies[moduleName]['version'];
-				let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-				let message = installedVersion ?
+				const source = ranges.dependencies[moduleName].version;
+				const installedVersion = report.dependencies[moduleName]['version'];
+				const range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
+				const message = installedVersion ?
 					`Module '${moduleName}' the installed version '${installedVersion}' is invalid` :
 					`Module '${moduleName}' the installed version is invalid or has errors`;
 				diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
@@ -582,8 +582,8 @@ function getDiagnostic(document: TextDocument, report: NpmListReport, moduleName
 			}
 		}
 		else if (report.dependencies[moduleName]['extraneous'] === true) {
-			let source = findAttributeRange(ranges);
-			let range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
+			const source = findAttributeRange(ranges);
+			const range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
 			diagnostic = new Diagnostic(range, `Module '${moduleName}' is extraneous`, DiagnosticSeverity.Warning);
 		}
 	}
@@ -606,7 +606,7 @@ function findAttributeRange(ranges: SourceRanges): { offset: number, length: num
 }
 
 function anyModuleErrors(report: NpmListReport): boolean {
-	let problems: string[] = report['problems'];
+	const problems: string[] = report['problems'];
 	if (problems) {
 		return problems.find(each => {
 			return each.startsWith('missing:') || each.startsWith('invalid:') || each.startsWith('extraneous:');
@@ -618,8 +618,8 @@ function anyModuleErrors(report: NpmListReport): boolean {
 function collectDefinedDependencies(deps: DependencySourceRanges, node: Node) {
 	node.children.forEach(child => {
 		if (child.type === 'property' && child.children.length === 2) {
-			let dependencyName = child.children[0];
-			let version = child.children[1];
+			const dependencyName = child.children[0];
+			const version = child.children[1];
 			deps[dependencyName.value] = {
 				name: {
 					offset: dependencyName.offset,
@@ -646,7 +646,7 @@ function terminateScript(): void {
 	if (useTerminal()) {
 		window.showInformationMessage('Killing is only supported when the setting "runInTerminal" is "false"');
 	} else {
-		let items: ProcessItem[] = [];
+		const items: ProcessItem[] = [];
 
 		runningProcesses.forEach((value) => {
 			items.push(new ProcessItem(value.cmd, `kill the process ${value.process.pid}`, value.process.pid));
@@ -668,17 +668,17 @@ async function getInstalledModules(package_dir?: string): Promise<NpmListReport>
 		if (!package_dir) {
 			package_dir = workspace.rootPath;
 		}
-		let cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
+		const cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
 		let jsonResult = '';
 		let errors = '';
 
-		let p = cp.exec(cmd, { cwd: package_dir, env: process.env });
+		const p = cp.exec(cmd, { cwd: package_dir, env: process.env });
 
 		p.stderr.on('data', (chunk: string) => errors += chunk);
 		p.stdout.on('data', (chunk: string) => jsonResult += chunk);
 		p.on('close', (_code: number, _signal: string) => {
 			try {
-				let resp: NpmListReport = JSON.parse(jsonResult);
+				const resp: NpmListReport = JSON.parse(jsonResult);
 				resolve(resp);
 			} catch (e) {
 				reject(e);
@@ -688,8 +688,8 @@ async function getInstalledModules(package_dir?: string): Promise<NpmListReport>
 }
 
 function runCommandInOutputWindow(args: string[], cwd: string) {
-	let cmd = getNpmBin() + ' ' + args.join(' ');
-	let p = cp.exec(cmd, { cwd: cwd, env: process.env });
+	const cmd = getNpmBin() + ' ' + args.join(' ');
+	const p = cp.exec(cmd, { cwd: cwd, env: process.env });
 
 	runningProcesses.set(p.pid, { process: p, cmd: cmd });
 
@@ -721,7 +721,7 @@ function runCommandInTerminal(args: string[], cwd: string): void {
 }
 
 function runCommandInIntegratedTerminal(args: string[], cwd: string): void {
-	let cmd_args = Array.from(args);
+	const cmd_args = Array.from(args);
 	if (!terminal) {
 		terminal = window.createTerminal('npm');
 	}
@@ -742,14 +742,14 @@ function runSilent() {
 }
 
 function getIncludedDirectories() {
-	let dirs = [];
+	const dirs = [];
 
 	if (workspace.getConfiguration('npm')['useRootDirectory'] !== false) {
 		dirs.push(workspace.rootPath);
 	}
 
 	if (workspace.getConfiguration('npm')['includeDirectories'].length > 0) {
-		for (let dir of workspace.getConfiguration('npm')['includeDirectories']) {
+		for (const dir of workspace.getConfiguration('npm')['includeDirectories']) {
 			dirs.push(path.join(workspace.rootPath, dir));
 		}
 	}
