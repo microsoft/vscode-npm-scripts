@@ -357,7 +357,7 @@ function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: 
 		if (isScriptCommand) {
 			window.showErrorMessage(`Failed to find script with "${command[1]}" command`);
 		} else {
-			window.showErrorMessage(`Failed to find handler for "${command[0]}" commnd`);
+			window.showErrorMessage(`Failed to find handler for "${command[0]}" command`);
 		}
 		return;
 	}
@@ -442,7 +442,7 @@ function rerunLastScript(): void {
  *  - Adds entry with the command, it's name and paths (absolute and relative to workspace).
  *  - When the command equals to 'run-script' it reads the `package.json` and generates entries:
  *    - with all script names (when there is no script name defined),
- *    - with scripts that matche the name.
+ *    - with scripts that match the name.
  */
 function commandDescriptionsInPackage(param: string[], packagePath: string, descriptions: ScriptCommandDescription[]) {
 	var absolutePath = packagePath;
@@ -615,12 +615,12 @@ function anyModuleErrors(report: NpmListReport): boolean {
 	return false;
 }
 
-function collectDefinedDependencies(deps: DependencySourceRanges, node: Node) {
+function collectDefinedDependencies(dependencies: DependencySourceRanges, node: Node) {
 	node.children.forEach(child => {
 		if (child.type === 'property' && child.children.length === 2) {
 			const dependencyName = child.children[0];
 			const version = child.children[1];
-			deps[dependencyName.value] = {
+			dependencies[dependencyName.value] = {
 				name: {
 					offset: dependencyName.offset,
 					length: dependencyName.length
