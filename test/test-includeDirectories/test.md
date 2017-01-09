@@ -65,7 +65,7 @@ Based on the npm configuration the output will be different, but the terminal sh
 
 ## Test Case 5
 
-1. Open the file `folder/package.json`
+1. Open the file `folder1/package.json`
 
 Expected:
 
