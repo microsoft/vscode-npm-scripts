@@ -211,10 +211,10 @@ function loadConfiguration(context: ExtensionContext): void {
 			}
 		}, null, context.subscriptions);
 
-		// for now do not remove the markers on close
-		// workspace.onDidCloseTextDocument(document => {
-		// 	diagnosticCollection.clear();
-		// }, null, context.subscriptions);
+		// remove markers on close
+		workspace.onDidCloseTextDocument(_document => {
+			diagnosticCollection.clear();
+		}, null, context.subscriptions);
 
 		// workaround for onDidOpenTextDocument
 		// workspace.onDidOpenTextDocument(document => {
@@ -332,7 +332,7 @@ function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: 
 			description: s.cmd,
 			scriptName: s.name,
 			cwd: s.absolutePath,
-			execute(this:Script) {
+			execute(this: Script) {
 				let script = this.scriptName;
 				// quote the script name, when it contains white space
 				if (/\s/g.test(script)) {
@@ -381,16 +381,12 @@ function runNpmCommandInPackages(command: string[], allowAll = false, alwaysRunI
 }
 
 /**
-  * Executes an npm command with its arguments.
-  * @param cmd Command name.
-  * @param args Array of command arguments, they will be passed to the npm command.
-  *  Note: The first argument must be the path to the directory where the command will be executed.
+  * The first argument must be the path to the directory where the command will be executed.
   */
-function runNpmCommandWithArguments(cmd:string, ...args: any[]) {
-	const cmdArgs = [].slice.call(args);
-	const dir = cmdArgs.shift();
-	cmdArgs.unshift(cmd);
-	runNpmCommand(cmdArgs, dir);
+function runNpmCommandWithArguments(cmd: string, args: any[]) {
+	const dir = args.shift();
+	args.unshift(cmd);
+	runNpmCommand(args, dir);
 }
 
 function runNpmInstall(arg: CommandArgument) {
@@ -404,12 +400,12 @@ function runNpmInstall(arg: CommandArgument) {
 	runNpmCommandInPackages(['install'], true, false, dirs);
 }
 
-function runNpmInstallInOutputWindow() {
-	runNpmCommandWithArguments('install', arguments);
+function runNpmInstallInOutputWindow(...args: any[]) {
+	runNpmCommandWithArguments('install', args);
 }
 
-function runNpmUninstallInOutputWindow() {
-	runNpmCommandWithArguments('uninstall', arguments);
+function runNpmUninstallInOutputWindow(...args: any[]) {
+	runNpmCommandWithArguments('uninstall', args);
 }
 
 function runNpmTest() {
@@ -484,7 +480,7 @@ function commandsDescriptions(command: string[], dirs?: string[]): ScriptCommand
 	if (!dirs) {
 		dirs = getIncludedDirectories();
 	}
-	const descriptions:ScriptCommandDescription[] = [];
+	const descriptions: ScriptCommandDescription[] = [];
 	dirs.forEach(dir => commandDescriptionsInPackage(command, dir, descriptions));
 	return descriptions;
 }
@@ -494,7 +490,7 @@ async function doValidate(document: TextDocument) {
 
 	try {
 		report = await getInstalledModules(path.dirname(document.fileName));
-	}catch (e) {
+	} catch (e) {
 		// could not run 'npm ls' do not validate the package.json
 		return;
 	}
@@ -532,7 +528,7 @@ async function doValidate(document: TextDocument) {
 function parseSourceRanges(text: string): SourceRanges {
 	const definedDependencies: DependencySourceRanges = {};
 	const properties: PropertySourceRanges = {};
-	const errors:ParseError[] = [];
+	const errors: ParseError[] = [];
 	const node = parseTree(text, errors);
 
 	node.children.forEach(child => {
