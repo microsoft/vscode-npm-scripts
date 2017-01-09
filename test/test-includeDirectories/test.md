@@ -50,7 +50,6 @@ Based on the npm configuration the output will be different, but the terminal sh
 
 ## Test Case 4:
 
-1. Follow steps from "npm Run script template" with typed = "npm run script"
 1. Press F1.
 2. Type: `npm run script`.
 3. Press Enter.
