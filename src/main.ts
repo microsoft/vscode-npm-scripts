@@ -381,12 +381,11 @@ function runNpmCommandInPackages(command: string[], allowAll = false, alwaysRunI
 }
 
 /**
-  * The first argument must be the path to the directory where the command will be executed.
+  * The first argument in `args` must be the path to the directory where the command will be executed.
   */
-function runNpmCommandWithArguments(cmd: string, args: any[]) {
-	const dir = args.shift();
-	args.unshift(cmd);
-	runNpmCommand(args, dir);
+function runNpmCommandWithArguments(cmd: string, args: string[]) {
+	const [dir, ...args1] = args;
+	runNpmCommand([cmd, ...args1], dir);
 }
 
 function runNpmInstall(arg: CommandArgument) {
@@ -400,11 +399,11 @@ function runNpmInstall(arg: CommandArgument) {
 	runNpmCommandInPackages(['install'], true, false, dirs);
 }
 
-function runNpmInstallInOutputWindow(...args: any[]) {
+function runNpmInstallInOutputWindow(...args: string[]) {
 	runNpmCommandWithArguments('install', args);
 }
 
-function runNpmUninstallInOutputWindow(...args: any[]) {
+function runNpmUninstallInOutputWindow(...args: string[]) {
 	runNpmCommandWithArguments('uninstall', args);
 }
 
