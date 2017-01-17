@@ -502,7 +502,9 @@ async function doValidate(document: TextDocument) {
 		if (!anyModuleErrors(report)) {
 			return;
 		}
-
+		if (!document.getText()) {
+			return;
+		}
 		const sourceRanges = parseSourceRanges(document.getText());
 		const dependencies = report.dependencies;
 		const diagnostics: Diagnostic[] = [];
