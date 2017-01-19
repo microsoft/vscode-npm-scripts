@@ -487,10 +487,17 @@ function commandsDescriptions(command: string[], dirs?: string[]): ScriptCommand
 async function doValidate(document: TextDocument) {
 	let report = null;
 
+	let documentWasClosed = false; // track whether the document was closed while getInstalledModules/'npm ls' runs
+	const listener = workspace.onDidCloseTextDocument(doc => {
+		if (doc.uri === document.uri) {
+			documentWasClosed = true;
+		}
+	});
+
 	try {
 		report = await getInstalledModules(path.dirname(document.fileName));
 	} catch (e) {
-		// could not run 'npm ls' do not validate the package.json
+		listener.dispose();
 		return;
 	}
 	try {
@@ -502,7 +509,7 @@ async function doValidate(document: TextDocument) {
 		if (!anyModuleErrors(report)) {
 			return;
 		}
-		if (!document.getText()) {
+		if (documentWasClosed || !document.getText()) {
 			return;
 		}
 		const sourceRanges = parseSourceRanges(document.getText());
