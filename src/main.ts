@@ -408,7 +408,7 @@ function runNpmUninstallInOutputWindow(...args: string[]) {
 }
 
 function runNpmTest() {
-	runNpmCommandInPackages(['run-script', 'test'], true);
+	runNpmCommandInPackages(['test'], true);
 }
 
 function runNpmStart() {
