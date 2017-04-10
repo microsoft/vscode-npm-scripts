@@ -1,3 +1,4 @@
+- 0.1.9 bug fixes do not validate `yarn` managed modules with `npm` [#34](https://github.com/Microsoft/vscode-npm-scripts/issues/34)
 - 0.1.7/0.1.8 bug fixes
 - 0.1.6 Fully support the `includeDirectories` setting, issue [#24](https://github.com/Microsoft/vscode-npm-scripts/issues/24)
 - 0.1.4/0.1.5 Handle the case that npm is not installed more gracefully

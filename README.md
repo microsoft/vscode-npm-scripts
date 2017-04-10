@@ -3,6 +3,8 @@
 This extension supports running npm scripts defined in the `package.json` file and validating the installed modules
 against the dependencies defined in the `package.json`.
 
+**Notice** The validation is done by running `npm` and it is not run when the modules are managed by `yarn`.
+
 The `package.json` validation reports warnings for modules:
 - that are defined in the package.json, but that are not installed
 - that are installed but not defined in the package.json
