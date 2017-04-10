@@ -225,9 +225,12 @@ function loadConfiguration(context: ExtensionContext): void {
 	}
 }
 
-function validateDocument(document: TextDocument) {
+async function validateDocument(document: TextDocument) {
 	//console.log('validateDocument ', document.fileName);
-	if (!validationEnabled) {
+
+	// do not validate yarn managed node_modules
+	if (!validationEnabled || await isYarnManaged()) {
+		diagnosticCollection.clear();
 		return;
 	}
 	if (!isPackageJson(document)) {
@@ -247,6 +250,18 @@ function validateDocument(document: TextDocument) {
 
 function isPackageJson(document: TextDocument) {
 	return document && path.basename(document.fileName) === 'package.json';
+}
+
+async function isYarnManaged(): Promise<boolean> {
+	return new Promise<boolean>((resolve, _reject) => {
+		const cwd = workspace.rootPath;
+		if (!cwd) {
+			return resolve(false);
+		}
+		fs.stat(path.join(cwd, 'yarn.lock'), (err, _stat) => {
+			return resolve(err === null);
+		});
+	});
 }
 
 function validateAllDocuments() {
