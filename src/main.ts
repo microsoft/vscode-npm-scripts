@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import {
 	window, commands, workspace, languages, OutputChannel, ExtensionContext, ViewColumn,
 	QuickPickItem, Terminal, DiagnosticCollection, Diagnostic, Range, TextDocument, DiagnosticSeverity,
-	CodeActionProvider, CodeActionContext, CancellationToken, Command
+	CodeActionProvider, CodeActionContext, CancellationToken, Command, TaskProvider, TaskSet, ShellTask
 } from 'vscode';
 
 import { runInTerminal } from 'run-in-terminal';
@@ -186,6 +186,40 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(outputChannel);
 
 	context.subscriptions.push(languages.registerCodeActionsProvider('json', new NpmCodeActionProvider()));
+
+	if (!workspace.rootPath) {
+		return;
+	}
+
+	const taskProvider: TaskProvider = {
+		provideTasks(): Thenable<TaskSet> {
+			return npmScriptsAsTasks();
+		}
+	}
+	workspace.registerTaskProvider(taskProvider);
+}
+
+function npmScriptsAsTasks(): Thenable<TaskSet> {
+	const fileName = path.join(workspace.rootPath, 'package.json');
+	const emptyTaskSet: TaskSet = { tasks: [] };
+
+	try {
+		var contents = fs.readFileSync(fileName).toString();
+		var json = JSON.parse(contents);
+
+		if (!json.scripts) {
+			return Promise.resolve(emptyTaskSet);
+		}
+
+		const result: TaskSet = { tasks: [], buildTasks: [], testTasks: [] };
+		Object.keys(json.scripts).forEach(each => {
+			const task = new ShellTask(`npm run-script ${each}`, `npm run-script ${each}`);
+			result.tasks.push(task);
+		});
+		return Promise.resolve(result)
+	} catch (e) {
+		return Promise.resolve(emptyTaskSet);
+	}
 }
 
 export function deactivate() {
@@ -764,3 +798,4 @@ function getIncludedDirectories() {
 function getNpmBin() {
 	return workspace.getConfiguration('npm')['bin'] || 'npm';
 }
+

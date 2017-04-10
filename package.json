@@ -8,6 +8,7 @@
 	"engines": {
 		"vscode": "^1.5.0"
 	},
+	"enableProposedApi": true,
 	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
 	"repository": {
 		"type": "git",
@@ -27,7 +28,10 @@
 		"onCommand:npm-script.rerun-last-script",
 		"onCommand:npm-script.terminate-script",
 		"onCommand:npm-script.test",
-		"onCommand:npm-script.start"
+		"onCommand:npm-script.start",
+		"onCommand:workbench.action.tasks.runTask",
+		"onCommand:workbench.action.tasks.build",
+		"onCommand:workbench.action.tasks.test"
 	],
 	"main": "./out/src/main",
 	"contributes": {
@@ -154,7 +158,7 @@
 	},
 	"devDependencies": {
 		"typescript": "^2.1.4",
-		"vscode": "^1.0.0",
+		"vscode": "^1.1.0",
 		"@types/node": "^6.0.40",
 		"@types/mocha": "^2.2.32",
 		"tslint": "^4.2.0"
