@@ -746,7 +746,9 @@ function runCommandInIntegratedTerminal(args: string[], cwd: string): void {
 	}
 	terminal.show();
 	if (cwd) {
-		terminal.sendText(['cd', cwd].join(' '));
+		// Replace single backslash with double backslash.
+		const textCwd = cwd.replace(/\\/g, '\\\\');
+		terminal.sendText(['cd', `"${textCwd}"`].join(' '));
 	}
 	cmd_args.splice(0, 0, getNpmBin());
 	terminal.sendText(cmd_args.join(' '));
