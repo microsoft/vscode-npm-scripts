@@ -185,6 +185,12 @@ export function activate(context: ExtensionContext) {
 	outputChannel = window.createOutputChannel('npm');
 	context.subscriptions.push(outputChannel);
 
+	window.onDidCloseTerminal((closedTerminal) => {
+		if (terminal === closedTerminal) {
+			terminal = null;
+		}
+	});
+
 	context.subscriptions.push(languages.registerCodeActionsProvider('json', new NpmCodeActionProvider()));
 }
 
@@ -741,17 +747,22 @@ function runCommandInTerminal(args: string[], cwd: string): void {
 
 function runCommandInIntegratedTerminal(args: string[], cwd: string): void {
 	const cmd_args = Array.from(args);
+	let delay = 0;
 	if (!terminal) {
 		terminal = window.createTerminal('npm');
+		delay = 1000;
 	}
 	terminal.show();
-	if (cwd) {
-		// Replace single backslash with double backslash.
-		const textCwd = cwd.replace(/\\/g, '\\\\');
-		terminal.sendText(['cd', `"${textCwd}"`].join(' '));
-	}
-	cmd_args.splice(0, 0, getNpmBin());
-	terminal.sendText(cmd_args.join(' '));
+	// TODO need to wait unti the terminal is up and listening
+	setTimeout(() => {
+		if (cwd) {
+			// Replace single backslash with double backslash.
+			const textCwd = cwd.replace(/\\/g, '\\\\');
+			terminal.sendText(['cd', `"${textCwd}"`].join(' '));
+		}
+		cmd_args.splice(0, 0, getNpmBin());
+		terminal.sendText(cmd_args.join(' '));
+	}, delay);
 }
 
 function useTerminal() {
