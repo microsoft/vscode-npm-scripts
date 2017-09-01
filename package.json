@@ -2,11 +2,11 @@
 	"name": "vscode-npm-script",
 	"description": "npm support for VS Code",
 	"displayName": "npm",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
-		"vscode": "^1.5.0"
+		"vscode": "^1.15.0"
 	},
 	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
 	"repository": {
@@ -127,11 +127,6 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Look for 'package.json' in the root directory of the workspace"
-				},
-				"npm.runSilent": {
-					"type": "boolean",
-					"default": false,
-					"description": "Run npm commands with the `--silent` option"
 				},
 				"npm.bin": {
 					"type": "string",

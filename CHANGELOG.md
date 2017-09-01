@@ -1,3 +1,4 @@
+- 0.2.1 fix for [#32716](https://github.com/Microsoft/vscode/issues/32716) Duplicate setting npm.runSilent
 - 0.2.0 fix for [#38](https://github.com/Microsoft/vscode-npm-scripts/issues/38) After closing npm in terminal I can't run command anymore
 - 0.1.9 bug fixes do not validate `yarn` managed modules with `npm` [#34](https://github.com/Microsoft/vscode-npm-scripts/issues/34)
 - 0.1.7/0.1.8 bug fixes
