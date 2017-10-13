@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import {
 	window, commands, workspace, languages, OutputChannel, ExtensionContext, ViewColumn,
 	QuickPickItem, Terminal, DiagnosticCollection, Diagnostic, Range, TextDocument, DiagnosticSeverity,
-	CodeActionProvider, CodeActionContext, CancellationToken, Command
+	CodeActionProvider, CodeActionContext, CancellationToken, Command, Uri
 } from 'vscode';
 
 import { runInTerminal } from 'run-in-terminal';
@@ -73,6 +73,7 @@ interface NpmListReport {
 interface ScriptCommandDescription {
 	absolutePath: string;
 	relativePath: string;
+	workspaceRoot: Uri;
 	name: string;
 	cmd: string;
 };
@@ -171,7 +172,6 @@ let terminal: Terminal = null;
 let lastScript: Script = null;
 let diagnosticCollection: DiagnosticCollection = null;
 let delayer: ThrottledDelayer<void> = null;
-let validationEnabled = true;
 
 export function activate(context: ExtensionContext) {
 	registerCommands(context);
@@ -200,42 +200,47 @@ export function deactivate() {
 	}
 }
 
-function loadConfiguration(context: ExtensionContext): void {
-	const section = workspace.getConfiguration('npm');
+function isValidationEnabled(document: TextDocument) {
+	const section = workspace.getConfiguration('npm', document.uri);
 	if (section) {
-		validationEnabled = section.get<boolean>('validate.enable', true);
+		return section.get<boolean>('validate.enable', true);
 	}
+	return false;
+}
+
+function loadConfiguration(context: ExtensionContext): void {
+
 	diagnosticCollection.clear();
 
-	if (validationEnabled) {
-		workspace.onDidSaveTextDocument(document => {
+	workspace.onDidSaveTextDocument(document => {
+		if (isValidationEnabled(document)) {
 			validateDocument(document);
-		}, null, context.subscriptions);
-		window.onDidChangeActiveTextEditor(editor => {
-			if (editor && editor.document) {
-				validateDocument(editor.document);
-			}
-		}, null, context.subscriptions);
+		}
+	}, null, context.subscriptions);
+	window.onDidChangeActiveTextEditor(editor => {
+		if (editor && editor.document && isValidationEnabled(editor.document)) {
+			validateDocument(editor.document);
+		}
+	}, null, context.subscriptions);
 
-		// remove markers on close
-		workspace.onDidCloseTextDocument(_document => {
-			diagnosticCollection.clear();
-		}, null, context.subscriptions);
+	// remove markers on close
+	workspace.onDidCloseTextDocument(_document => {
+		diagnosticCollection.clear();
+	}, null, context.subscriptions);
 
-		// workaround for onDidOpenTextDocument
-		// workspace.onDidOpenTextDocument(document => {
-		// 	console.log("onDidOpenTextDocument ", document.fileName);
-		// 	validateDocument(document);
-		// }, null, context.subscriptions);
-		validateAllDocuments();
-	}
+	// workaround for onDidOpenTextDocument
+	// workspace.onDidOpenTextDocument(document => {
+	// 	console.log("onDidOpenTextDocument ", document.fileName);
+	// 	validateDocument(document);
+	// }, null, context.subscriptions);
+	validateAllDocuments();
 }
 
 async function validateDocument(document: TextDocument) {
 	//console.log('validateDocument ', document.fileName);
 
 	// do not validate yarn managed node_modules
-	if (!validationEnabled || await isYarnManaged()) {
+	if (!isValidationEnabled(document) || await isYarnManaged(document)) {
 		diagnosticCollection.clear();
 		return;
 	}
@@ -244,7 +249,7 @@ async function validateDocument(document: TextDocument) {
 	}
 	// Iterate over the defined package directories to check
 	// if the currently opened `package.json` is one that is included in the `includedDirectories` setting.
-	const found = getIncludedDirectories().find(each => path.dirname(document.fileName) === each);
+	const found = getAllIncludedDirectories().find(each => path.dirname(document.fileName) === each);
 	if (!found) {
 		return;
 	}
@@ -258,13 +263,13 @@ function isPackageJson(document: TextDocument) {
 	return document && path.basename(document.fileName) === 'package.json';
 }
 
-async function isYarnManaged(): Promise<boolean> {
+async function isYarnManaged(document: TextDocument): Promise<boolean> {
 	return new Promise<boolean>((resolve, _reject) => {
-		const cwd = workspace.rootPath;
-		if (!cwd) {
+		const root = workspace.getWorkspaceFolder(document.uri).uri.fsPath;
+		if (!root) {
 			return resolve(false);
 		}
-		fs.stat(path.join(cwd, 'yarn.lock'), (err, _stat) => {
+		fs.stat(path.join(root, 'yarn.lock'), (err, _stat) => {
 			return resolve(err === null);
 		});
 	});
@@ -336,6 +341,10 @@ function createAllCommand(scriptList: Script[], isScriptCommand: boolean): Scrip
 	};
 }
 
+function isMultiRoot():boolean {
+	return workspace.workspaceFolders.length > 1;
+}
+
 function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: string[], allowAll = false, alwaysRunInputWindow = false) {
 	const scriptList: Script[] = [];
 	const isScriptCommand = command[0] === 'run-script';
@@ -346,7 +355,11 @@ function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: 
 	for (const s of descriptions) {
 		let label = s.name;
 		if (s.relativePath) {
-			label = `${s.relativePath}: ${label}`;
+			label = `${s.relativePath} - ${label}`;
+		}
+		if (isMultiRoot()) {
+			let root = workspace.getWorkspaceFolder(Uri.file(s.absolutePath));
+			label = `${root.name}: ${label}`
 		}
 		scriptList.push({
 			label: label,
@@ -415,7 +428,7 @@ function runNpmInstall(arg: CommandArgument) {
 	if (arg && arg.fsPath) {
 		dirs.push(path.dirname(arg.fsPath));
 	} else {
-		dirs = getIncludedDirectories();
+		dirs = getAllIncludedDirectories();
 	}
 	runNpmCommandInPackages(['install'], true, false, dirs);
 }
@@ -462,7 +475,10 @@ function rerunLastScript(): void {
  */
 function commandDescriptionsInPackage(param: string[], packagePath: string, descriptions: ScriptCommandDescription[]) {
 	var absolutePath = packagePath;
-	var relativePath = absolutePath.substring(workspace.rootPath.length + 1);
+	const fileUri = Uri.file(absolutePath);
+	const rootUri = workspace.getWorkspaceFolder(fileUri).uri;
+	var relativePath = absolutePath.substring(rootUri.fsPath.length + 1);
+
 	const cmd = param[0];
 	const name = param[1];
 
@@ -476,6 +492,7 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 				Object.keys(jsonScripts).forEach(key => {
 					if (!name || key === name) {
 						descriptions.push({
+							workspaceRoot: rootUri,
 							absolutePath: absolutePath,
 							relativePath: relativePath,
 							name: `${key}`,
@@ -488,6 +505,7 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 		}
 	} else {
 		descriptions.push({
+			workspaceRoot: rootUri,
 			absolutePath: absolutePath,
 			relativePath: relativePath,
 			name: `${cmd}`,
@@ -498,7 +516,7 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 
 function commandsDescriptions(command: string[], dirs?: string[]): ScriptCommandDescription[] {
 	if (!dirs) {
-		dirs = getIncludedDirectories();
+		dirs = getAllIncludedDirectories();
 	}
 	const descriptions: ScriptCommandDescription[] = [];
 	dirs.forEach(dir => commandDescriptionsInPackage(command, dir, descriptions));
@@ -688,11 +706,8 @@ function terminateScript(): void {
 	}
 }
 
-async function getInstalledModules(package_dir?: string): Promise<NpmListReport> {
+async function getInstalledModules(package_dir: string): Promise<NpmListReport> {
 	return new Promise<NpmListReport>((resolve, reject) => {
-		if (!package_dir) {
-			package_dir = workspace.rootPath;
-		}
 		const cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
 		let jsonResult = '';
 		let errors = '';
@@ -747,22 +762,18 @@ function runCommandInTerminal(args: string[], cwd: string): void {
 
 function runCommandInIntegratedTerminal(args: string[], cwd: string): void {
 	const cmd_args = Array.from(args);
-	let delay = 0;
+
 	if (!terminal) {
 		terminal = window.createTerminal('npm');
-		delay = 1000;
 	}
 	terminal.show();
-	// TODO need to wait unti the terminal is up and listening
-	setTimeout(() => {
-		if (cwd) {
-			// Replace single backslash with double backslash.
-			const textCwd = cwd.replace(/\\/g, '\\\\');
-			terminal.sendText(['cd', `"${textCwd}"`].join(' '));
-		}
-		cmd_args.splice(0, 0, getNpmBin());
-		terminal.sendText(cmd_args.join(' '));
-	}, delay);
+	if (cwd) {
+		// Replace single backslash with double backslash.
+		const textCwd = cwd.replace(/\\/g, '\\\\');
+		terminal.sendText(['cd', `"${textCwd}"`].join(' '));
+	}
+	cmd_args.splice(0, 0, getNpmBin());
+	terminal.sendText(cmd_args.join(' '));
 }
 
 function useTerminal() {
@@ -773,19 +784,34 @@ function runSilent() {
 	return workspace.getConfiguration('npm')['runSilent'];
 }
 
-function getIncludedDirectories() {
-	const dirs = [];
+function getAllIncludedDirectories(): string[] {
+	const allDirs: string[] = [];
 
-	if (workspace.getConfiguration('npm')['useRootDirectory'] !== false) {
-		dirs.push(workspace.rootPath);
+	const folders = workspace.workspaceFolders;
+
+	if (!folders) {
+		return allDirs;
 	}
 
-	if (workspace.getConfiguration('npm')['includeDirectories'].length > 0) {
-		for (const dir of workspace.getConfiguration('npm')['includeDirectories']) {
-			dirs.push(path.join(workspace.rootPath, dir));
+	for (let i = 0; i < folders.length; i++) {
+		const dirs = getIncludedDirectories(folders[i].uri);
+		allDirs.push(...dirs);
+	}
+	return allDirs;
+}
+
+function getIncludedDirectories(workspaceRoot: Uri): string[] {
+	const dirs: string[] = [];
+
+	if (workspace.getConfiguration('npm', workspaceRoot)['useRootDirectory'] !== false) {
+		dirs.push(workspaceRoot.fsPath);
+	}
+
+	if (workspace.getConfiguration('npm', workspaceRoot)['includeDirectories'].length > 0) {
+		for (const dir of workspace.getConfiguration('npm', workspaceRoot)['includeDirectories']) {
+			dirs.push(path.join(workspaceRoot.fsPath, dir));
 		}
 	}
-
 	return dirs;
 }
 
