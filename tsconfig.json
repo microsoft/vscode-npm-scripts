@@ -9,6 +9,7 @@
 		"sourceMap": true,
 		"noUnusedParameters": true,
 		"noUnusedLocals": true,
+		"strictNullChecks": false,
 		"noFallthroughCasesInSwitch": true,
 		"allowUnreachableCode": false,
 		"noImplicitAny": true,

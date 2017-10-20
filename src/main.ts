@@ -302,14 +302,11 @@ function registerCommands(context: ExtensionContext) {
 	);
 }
 
-function runNpmCommand(args: string[], cwd?: string, alwaysRunInputWindow = false): void {
+function runNpmCommand(args: string[], cwd: string, alwaysRunInputWindow = false): void {
 	if (runSilent()) {
 		args.push('--silent');
 	}
 	workspace.saveAll().then(() => {
-		if (!cwd) {
-			cwd = workspace.rootPath;
-		}
 
 		if (useTerminal() && !alwaysRunInputWindow) {
 			if (typeof window.createTerminal === 'function') {
@@ -342,7 +339,7 @@ function createAllCommand(scriptList: Script[], isScriptCommand: boolean): Scrip
 }
 
 function isMultiRoot():boolean {
-	return workspace.workspaceFolders.length > 1;
+	return workspace.workspaceFolders && workspace.workspaceFolders.length > 1;
 }
 
 function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: string[], allowAll = false, alwaysRunInputWindow = false) {
@@ -358,8 +355,8 @@ function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: 
 			label = `${s.relativePath} - ${label}`;
 		}
 		if (isMultiRoot()) {
-			let root = workspace.getWorkspaceFolder(Uri.file(s.absolutePath));
-			label = `${root.name}: ${label}`
+			const root = workspace.getWorkspaceFolder(Uri.file(s.absolutePath));
+			label = `${root.name}: ${label}`;
 		}
 		scriptList.push({
 			label: label,
@@ -514,7 +511,7 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 	}
 }
 
-function commandsDescriptions(command: string[], dirs?: string[]): ScriptCommandDescription[] {
+function commandsDescriptions(command: string[], dirs: string[]): ScriptCommandDescription[] {
 	if (!dirs) {
 		dirs = getAllIncludedDirectories();
 	}
@@ -794,8 +791,10 @@ function getAllIncludedDirectories(): string[] {
 	}
 
 	for (let i = 0; i < folders.length; i++) {
-		const dirs = getIncludedDirectories(folders[i].uri);
-		allDirs.push(...dirs);
+		if (folders[i].uri.scheme === 'file') {
+			const dirs = getIncludedDirectories(folders[i].uri);
+			allDirs.push(...dirs);
+		}
 	}
 	return allDirs;
 }
