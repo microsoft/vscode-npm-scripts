@@ -29,9 +29,9 @@ export interface ITask<T> {
  */
 export class Throttler<T> {
 
-	private activePromise: Promise<T>;
-	private queuedPromise: Promise<T>;
-	private queuedPromiseFactory: ITask<Promise<T>>;
+	private activePromise: Promise<T> | null;
+	private queuedPromise: Promise<T> | null;
+	private queuedPromiseFactory: ITask<Promise<T>> | null;
 
 	constructor() {
 		this.activePromise = null;

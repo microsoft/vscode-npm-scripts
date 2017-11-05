@@ -15,7 +15,7 @@ import { ThrottledDelayer } from './async';
 
 interface Script extends QuickPickItem {
 	scriptName: string;
-	cwd: string;
+	cwd: string | undefined;
 	execute(): void;
 }
 
@@ -72,8 +72,7 @@ interface NpmListReport {
 
 interface ScriptCommandDescription {
 	absolutePath: string;
-	relativePath: string;
-	workspaceRoot: Uri;
+	relativePath: string | undefined; // path relative to workspace root, if there is a root
 	name: string;
 	cmd: string;
 };
@@ -168,10 +167,10 @@ class NpmCodeActionProvider implements CodeActionProvider {
 const runningProcesses: Map<number, Process> = new Map();
 
 let outputChannel: OutputChannel;
-let terminal: Terminal = null;
-let lastScript: Script = null;
-let diagnosticCollection: DiagnosticCollection = null;
-let delayer: ThrottledDelayer<void> = null;
+let terminal: Terminal | null = null;
+let lastScript: Script | null = null;
+let diagnosticCollection: DiagnosticCollection | null = null;
+let delayer: ThrottledDelayer<void> | null = null;
 
 export function activate(context: ExtensionContext) {
 	registerCommands(context);
@@ -200,6 +199,12 @@ export function deactivate() {
 	}
 }
 
+function clearDiagnosticCollection() {
+	if (diagnosticCollection) {
+		diagnosticCollection.clear();
+	}
+}
+
 function isValidationEnabled(document: TextDocument) {
 	const section = workspace.getConfiguration('npm', document.uri);
 	if (section) {
@@ -210,7 +215,7 @@ function isValidationEnabled(document: TextDocument) {
 
 function loadConfiguration(context: ExtensionContext): void {
 
-	diagnosticCollection.clear();
+	clearDiagnosticCollection();
 
 	workspace.onDidSaveTextDocument(document => {
 		if (isValidationEnabled(document)) {
@@ -225,7 +230,7 @@ function loadConfiguration(context: ExtensionContext): void {
 
 	// remove markers on close
 	workspace.onDidCloseTextDocument(_document => {
-		diagnosticCollection.clear();
+		clearDiagnosticCollection();
 	}, null, context.subscriptions);
 
 	// workaround for onDidOpenTextDocument
@@ -241,7 +246,7 @@ async function validateDocument(document: TextDocument) {
 
 	// do not validate yarn managed node_modules
 	if (!isValidationEnabled(document) || await isYarnManaged(document)) {
-		diagnosticCollection.clear();
+		clearDiagnosticCollection();
 		return;
 	}
 	if (!isPackageJson(document)) {
@@ -265,13 +270,16 @@ function isPackageJson(document: TextDocument) {
 
 async function isYarnManaged(document: TextDocument): Promise<boolean> {
 	return new Promise<boolean>((resolve, _reject) => {
-		const root = workspace.getWorkspaceFolder(document.uri).uri.fsPath;
+		const workspaceFolder = workspace.getWorkspaceFolder(document.uri);
+		if (workspaceFolder) {
+			const root = workspaceFolder.uri.fsPath;
 		if (!root) {
 			return resolve(false);
 		}
 		fs.stat(path.join(root, 'yarn.lock'), (err, _stat) => {
 			return resolve(err === null);
 		});
+		}
 	});
 }
 
@@ -302,7 +310,7 @@ function registerCommands(context: ExtensionContext) {
 	);
 }
 
-function runNpmCommand(args: string[], cwd: string, alwaysRunInputWindow = false): void {
+function runNpmCommand(args: string[], cwd: string | undefined, alwaysRunInputWindow = false): void {
 	if (runSilent()) {
 		args.push('--silent');
 	}
@@ -326,7 +334,7 @@ function createAllCommand(scriptList: Script[], isScriptCommand: boolean): Scrip
 		label: "All",
 		description: "Run all " + (isScriptCommand ? "scripts" : "commands") + " listed below",
 		scriptName: "Dummy",
-		cwd: null,
+		cwd: undefined,
 		execute(this: Script) {
 			for (const s of scriptList) {
 				// check for null ``cwd to prevent calling the function by itself.
@@ -338,8 +346,11 @@ function createAllCommand(scriptList: Script[], isScriptCommand: boolean): Scrip
 	};
 }
 
-function isMultiRoot():boolean {
-	return workspace.workspaceFolders && workspace.workspaceFolders.length > 1;
+function isMultiRoot(): boolean {
+	if (workspace.workspaceFolders) {
+		return workspace.workspaceFolders.length > 1;
+}
+	return false;
 }
 
 function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: string[], allowAll = false, alwaysRunInputWindow = false) {
@@ -356,7 +367,9 @@ function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: 
 		}
 		if (isMultiRoot()) {
 			const root = workspace.getWorkspaceFolder(Uri.file(s.absolutePath));
+			if (root) {
 			label = `${root.name}: ${label}`;
+		}
 		}
 		scriptList.push({
 			label: label,
@@ -473,8 +486,13 @@ function rerunLastScript(): void {
 function commandDescriptionsInPackage(param: string[], packagePath: string, descriptions: ScriptCommandDescription[]) {
 	var absolutePath = packagePath;
 	const fileUri = Uri.file(absolutePath);
-	const rootUri = workspace.getWorkspaceFolder(fileUri).uri;
-	var relativePath = absolutePath.substring(rootUri.fsPath.length + 1);
+	const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
+	let rootUri: Uri | undefined = undefined;
+	let relativePath : string | undefined = undefined;
+	if (workspaceFolder) {
+		rootUri = workspaceFolder.uri;
+		relativePath = absolutePath.substring(rootUri.fsPath.length + 1);
+	}
 
 	const cmd = param[0];
 	const name = param[1];
@@ -489,7 +507,6 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 				Object.keys(jsonScripts).forEach(key => {
 					if (!name || key === name) {
 						descriptions.push({
-							workspaceRoot: rootUri,
 							absolutePath: absolutePath,
 							relativePath: relativePath,
 							name: `${key}`,
@@ -502,7 +519,6 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 		}
 	} else {
 		descriptions.push({
-			workspaceRoot: rootUri,
 			absolutePath: absolutePath,
 			relativePath: relativePath,
 			name: `${cmd}`,
@@ -511,7 +527,7 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 	}
 }
 
-function commandsDescriptions(command: string[], dirs: string[]): ScriptCommandDescription[] {
+function commandsDescriptions(command: string[], dirs: string[] | undefined): ScriptCommandDescription[] {
 	if (!dirs) {
 		dirs = getAllIncludedDirectories();
 	}
@@ -537,7 +553,7 @@ async function doValidate(document: TextDocument) {
 		return;
 	}
 	try {
-		diagnosticCollection.clear();
+		clearDiagnosticCollection();
 
 		if (report.invalid && report.invalid === true) {
 			return;
@@ -550,8 +566,10 @@ async function doValidate(document: TextDocument) {
 		}
 		const sourceRanges = parseSourceRanges(document.getText());
 		const dependencies = report.dependencies;
+		if (!dependencies) {
+			return;
+		}
 		const diagnostics: Diagnostic[] = [];
-
 		for (var moduleName in dependencies) {
 			if (dependencies.hasOwnProperty(moduleName)) {
 				const diagnostic = getDiagnostic(document, report, moduleName, sourceRanges);
@@ -562,7 +580,7 @@ async function doValidate(document: TextDocument) {
 			}
 		}
 		//console.log("diagnostic count ", diagnostics.length, " ", document.uri.fsPath);
-		diagnosticCollection.set(document.uri, diagnostics);
+		diagnosticCollection!.set(document.uri, diagnostics);
 	} catch (e) {
 		window.showInformationMessage(`[npm-script-runner] Cannot validate the package.json ` + e);
 		console.log(`npm-script-runner: 'error while validating package.json stacktrace: ${e.stack}`);
@@ -575,8 +593,10 @@ function parseSourceRanges(text: string): SourceRanges {
 	const errors: ParseError[] = [];
 	const node = parseTree(text, errors);
 
+	if (node.children) {
 	node.children.forEach(child => {
 		const children = child.children;
+			if (children) {
 		const property = children[0];
 		properties[property.value] = {
 			name: {
@@ -585,16 +605,18 @@ function parseSourceRanges(text: string): SourceRanges {
 			}
 		};
 		if (children && children.length === 2 && isDependency(children[0].value)) {
-			collectDefinedDependencies(definedDependencies, child.children[1]);
+					collectDefinedDependencies(definedDependencies, children[1]);
+				}
 		}
 	});
+	}
 	return {
 		dependencies: definedDependencies,
 		properties: properties
 	};
 }
 
-function getDiagnostic(document: TextDocument, report: NpmListReport, moduleName: string, ranges: SourceRanges): Diagnostic {
+function getDiagnostic(document: TextDocument, report: NpmListReport, moduleName: string, ranges: SourceRanges): Diagnostic | null {
 	let diagnostic = null;
 
 	// npm list only reports errors against 'dependencies' and not against 'devDependencies'
@@ -646,7 +668,7 @@ function findAttributeRange(ranges: SourceRanges): { offset: number, length: num
 }
 
 function anyModuleErrors(report: NpmListReport): boolean {
-	const problems: string[] = report['problems'];
+	const problems: string[] | undefined = report['problems'];
 	if (problems) {
 		return problems.find(each => {
 			return each.startsWith('missing:') || each.startsWith('invalid:') || each.startsWith('extraneous:');
@@ -655,9 +677,12 @@ function anyModuleErrors(report: NpmListReport): boolean {
 	return false;
 }
 
-function collectDefinedDependencies(dependencies: DependencySourceRanges, node: Node) {
+function collectDefinedDependencies(dependencies: DependencySourceRanges, node: Node | undefined) {
+	if (!node || !node.children) {
+		return;
+	}
 	node.children.forEach(child => {
-		if (child.type === 'property' && child.children.length === 2) {
+		if (child.type === 'property' && child.children && child.children.length === 2) {
 			const dependencyName = child.children[0];
 			const version = child.children[1];
 			dependencies[dependencyName.value] = {
@@ -724,7 +749,7 @@ async function getInstalledModules(package_dir: string): Promise<NpmListReport> 
 	});
 }
 
-function runCommandInOutputWindow(args: string[], cwd: string) {
+function runCommandInOutputWindow(args: string[], cwd: string | undefined) {
 	const cmd = getNpmBin() + ' ' + args.join(' ');
 	const p = cp.exec(cmd, { cwd: cwd, env: process.env });
 
@@ -753,11 +778,11 @@ function runCommandInOutputWindow(args: string[], cwd: string) {
 	showNpmOutput();
 }
 
-function runCommandInTerminal(args: string[], cwd: string): void {
+function runCommandInTerminal(args: string[], cwd: string | undefined): void {
 	runInTerminal(getNpmBin(), args, { cwd: cwd, env: process.env });
 }
 
-function runCommandInIntegratedTerminal(args: string[], cwd: string): void {
+function runCommandInIntegratedTerminal(args: string[], cwd: string | undefined): void {
 	const cmd_args = Array.from(args);
 
 	if (!terminal) {
