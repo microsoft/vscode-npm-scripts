@@ -11,6 +11,7 @@ import {
 import { runInTerminal } from 'run-in-terminal';
 import { kill } from 'tree-kill';
 import { parseTree, Node, ParseError } from 'jsonc-parser';
+import { readInstalledModules } from './readInstalledModules';
 import { ThrottledDelayer } from './async';
 
 interface Script extends QuickPickItem {
@@ -729,6 +730,12 @@ function terminateScript(): void {
 }
 
 async function getInstalledModules(package_dir: string): Promise<NpmListReport> {
+	try {
+		return await readInstalledModules(package_dir);
+	} catch (e) {
+		console.log(`${e.message} while reading node_modules/*. Falling back to 'npm ls'`);
+	}
+
 	return new Promise<NpmListReport>((resolve, reject) => {
 		const cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
 		let jsonResult = '';
