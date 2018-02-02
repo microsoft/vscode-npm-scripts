@@ -11,8 +11,8 @@ import {
 import { runInTerminal } from 'run-in-terminal';
 import { kill } from 'tree-kill';
 import { parseTree, Node, ParseError } from 'jsonc-parser';
-import { readInstalledModules } from './readInstalledModules';
-import { ThrottledDelayer } from './async';
+import { readInstalledModulesRaw, readInstalledModulesNpmls, NpmListReport } from './readInstalledModules';
+import { ThrottledDelayer, readFile } from './async';
 
 interface Script extends QuickPickItem {
 	scriptName: string;
@@ -54,21 +54,6 @@ interface PropertySourceRanges {
 interface SourceRanges {
 	properties: PropertySourceRanges;
 	dependencies: DependencySourceRanges;
-}
-
-interface NpmDependencyReport {
-	[dependency: string]: {
-		version?: string;
-		invalid?: boolean;
-		extraneous?: boolean;
-		missing?: boolean;
-	};
-}
-
-interface NpmListReport {
-	invalid?: boolean;
-	problems?: string[];
-	dependencies?: NpmDependencyReport;
 }
 
 interface ScriptCommandDescription {
@@ -484,7 +469,7 @@ function rerunLastScript(): void {
  *    - with all script names (when there is no script name defined),
  *    - with scripts that match the name.
  */
-function commandDescriptionsInPackage(param: string[], packagePath: string, descriptions: ScriptCommandDescription[]) {
+async function commandDescriptionsInPackage(param: string[], packagePath: string, descriptions: ScriptCommandDescription[]) {
 	var absolutePath = packagePath;
 	const fileUri = Uri.file(absolutePath);
 	const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
@@ -501,7 +486,7 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 	if (cmd === 'run-script') {
 		try {
 			const fileName = path.join(packagePath, 'package.json');
-			const contents = fs.readFileSync(fileName).toString();
+			const contents = await readFile(fileName);
 			const json = JSON.parse(contents);
 			if (json.scripts) {
 				var jsonScripts = json.scripts;
@@ -731,29 +716,11 @@ function terminateScript(): void {
 
 async function getInstalledModules(package_dir: string): Promise<NpmListReport> {
 	try {
-		return await readInstalledModules(package_dir);
+		return readInstalledModulesRaw(package_dir);
 	} catch (e) {
 		console.log(`${e.message} while reading node_modules/*. Falling back to 'npm ls'`);
 	}
-
-	return new Promise<NpmListReport>((resolve, reject) => {
-		const cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
-		let jsonResult = '';
-		let errors = '';
-
-		const p = cp.exec(cmd, { cwd: package_dir, env: process.env });
-
-		p.stderr.on('data', (chunk: string) => errors += chunk);
-		p.stdout.on('data', (chunk: string) => jsonResult += chunk);
-		p.on('close', (_code: number, _signal: string) => {
-			try {
-				const resp: NpmListReport = JSON.parse(jsonResult);
-				resolve(resp);
-			} catch (e) {
-				reject(e);
-			}
-		});
-	});
+	return readInstalledModulesNpmls(getNpmBin(), package_dir);
 }
 
 function runCommandInOutputWindow(args: string[], cwd: string | undefined) {

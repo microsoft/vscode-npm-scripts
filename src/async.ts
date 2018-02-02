@@ -3,6 +3,19 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import * as fs from 'fs';
+
+export async function readFile(file: string): Promise<string> {
+	return new Promise<string>((resolve, reject) => {
+		fs.readFile(file, (err, data) => {
+			if (err) {
+				reject(err);
+			}
+			resolve(data.toString());
+		});
+	});
+}
+
 export interface ITask<T> {
 	(): T;
 }
