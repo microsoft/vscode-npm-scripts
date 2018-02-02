@@ -160,15 +160,11 @@
 		"vscode": "^1.0.0",
 		"@types/node": "^6.0.40",
 		"@types/mocha": "^2.2.32",
-		"@types/glob": "^5.0.35",
-		"@types/semver": "^5.4.0",
 		"tslint": "^4.2.0"
 	},
 	"dependencies": {
 		"run-in-terminal": "^0.0.2",
 		"tree-kill": "^1.1.0",
-		"glob": "^7.1.2",
-		"semver": "^5.5.0",
 		"jsonc-parser": "^0.2.3"
 	}
 }
