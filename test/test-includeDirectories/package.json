@@ -3,10 +3,10 @@
 	"version": "1.0.0",
 	"description": "Testing npm.includeDirectories part 1",
 	"scripts": {
-		"test": "npm config get tag",
-		"lint": "tslint test.ts",
-		"folder1-shell": "npm config get shell",
-		"postinstall": "echo testincludeDirectories/folder1"
+		"testA": "npm config get tag",
+		"lintA": "tslint",
+		"folder1-shellA": "npm config get shell",
+		"postinstall": "echo test-includeDirectories"
 	},
 	"dependencies": {
 		"chalk": "^2.4.1"

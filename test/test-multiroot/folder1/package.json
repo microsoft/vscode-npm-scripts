@@ -5,9 +5,10 @@
 	"scripts": {
 		"test": "npm config get tag",
 		"lint": "tslint",
-		"folder1-shell": "npm config get shell"
+		"folder1-shell": "npm config get shell",
+		"postinstall": "echo folder1"
 	},
 	"dependencies": {
-		"chalk": "^4.1.3" 
+		"chalk": "^2.4.1"
 	}
 }

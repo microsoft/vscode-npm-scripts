@@ -271,7 +271,7 @@ function isPackageJson(document: TextDocument) {
 async function isYarnManaged(document: TextDocument): Promise<boolean> {
 	return new Promise<boolean>((resolve, _reject) => {
 		const workspaceFolder = workspace.getWorkspaceFolder(document.uri);
-		if (workspaceFolder) {
+		if (workspaceFolder && workspaceFolder.uri.scheme === 'file') {
 			const root = workspaceFolder.uri.fsPath;
 		if (!root) {
 			return resolve(false);
@@ -421,6 +421,10 @@ function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: 
   */
 function runNpmCommandInPackages(command: string[], allowAll = false, alwaysRunInputWindow = false, dirs?: string[]) {
 	const descriptions = commandsDescriptions(command, dirs);
+	if (descriptions.length === 0) {
+		window.showErrorMessage("No scripts found.", { modal: true });
+		return;
+	}
 	pickScriptToExecute(descriptions, command, allowAll, alwaysRunInputWindow);
 }
 
