@@ -189,8 +189,8 @@ export function activate(context: ExtensionContext) {
 			terminal = null;
 		}
 	});
-
-	context.subscriptions.push(languages.registerCodeActionsProvider('json', new NpmCodeActionProvider()));
+	
+	context.subscriptions.push(languages.registerCodeActionsProvider({ language: 'json', scheme: 'file' }, new NpmCodeActionProvider()));
 }
 
 export function deactivate() {
@@ -271,14 +271,14 @@ function isPackageJson(document: TextDocument) {
 async function isYarnManaged(document: TextDocument): Promise<boolean> {
 	return new Promise<boolean>((resolve, _reject) => {
 		const workspaceFolder = workspace.getWorkspaceFolder(document.uri);
-		if (workspaceFolder && workspaceFolder.uri.scheme === 'file') {
-			const root = workspaceFolder.uri.fsPath;
-		if (!root) {
-			return resolve(false);
-		}
-		fs.stat(path.join(root, 'yarn.lock'), (err, _stat) => {
-			return resolve(err === null);
-		});
+		if (workspaceFolder) {
+			const root = workspaceFolder.uri.scheme === 'file'? workspaceFolder.uri.fsPath : undefined;
+			if (!root) {
+				return resolve(false);
+			}
+			fs.stat(path.join(root, 'yarn.lock'), (err, _stat) => {
+				return resolve(err === null);
+			});
 		}
 	});
 }
@@ -349,7 +349,7 @@ function createAllCommand(scriptList: Script[], isScriptCommand: boolean): Scrip
 function isMultiRoot(): boolean {
 	if (workspace.workspaceFolders) {
 		return workspace.workspaceFolders.length > 1;
-}
+	}
 	return false;
 }
 
@@ -368,8 +368,8 @@ function pickScriptToExecute(descriptions: ScriptCommandDescription[], command: 
 		if (isMultiRoot()) {
 			const root = workspace.getWorkspaceFolder(Uri.file(s.absolutePath));
 			if (root) {
-			label = `${root.name}: ${label}`;
-		}
+				label = `${root.name}: ${label}`;
+			}
 		}
 		scriptList.push({
 			label: label,
@@ -492,7 +492,7 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 	const fileUri = Uri.file(absolutePath);
 	const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
 	let rootUri: Uri | undefined = undefined;
-	let relativePath : string | undefined = undefined;
+	let relativePath: string | undefined = undefined;
 	if (workspaceFolder) {
 		rootUri = workspaceFolder.uri;
 		relativePath = absolutePath.substring(rootUri.fsPath.length + 1);
@@ -598,21 +598,21 @@ function parseSourceRanges(text: string): SourceRanges {
 	const node = parseTree(text, errors);
 
 	if (node.children) {
-	node.children.forEach(child => {
-		const children = child.children;
+		node.children.forEach(child => {
+			const children = child.children;
 			if (children) {
-		const property = children[0];
-		properties[property.value] = {
-			name: {
-				offset: property.offset,
-				length: property.length
-			}
-		};
-		if (children && children.length === 2 && isDependency(children[0].value)) {
+				const property = children[0];
+				properties[property.value] = {
+					name: {
+						offset: property.offset,
+						length: property.length
+					}
+				};
+				if (children && children.length === 2 && isDependency(children[0].value)) {
 					collectDefinedDependencies(definedDependencies, children[1]);
 				}
-		}
-	});
+			}
+		});
 	}
 	return {
 		dependencies: definedDependencies,
