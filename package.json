@@ -30,7 +30,8 @@
 		"onCommand:npm-script.rerun-last-script",
 		"onCommand:npm-script.terminate-script",
 		"onCommand:npm-script.test",
-		"onCommand:npm-script.start"
+		"onCommand:npm-script.start",
+		"onCommand:npm-script.audit"
 	],
 	"main": "./out/src/main",
 	"contributes": {
@@ -73,6 +74,11 @@
 			{
 				"command": "npm-script.build",
 				"title": "Run Build",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.audit",
+				"title": "Run Audit",
 				"category": "npm"
 			}
 		],
