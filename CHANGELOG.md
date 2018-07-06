@@ -1,3 +1,4 @@
+- 0.3.5 add support for running `npm audit` [#62](https://github.com/Microsoft/vscode-npm-scripts/issues/#62) Handle no scripts found gracefully
 - 0.3.4 fix for [#60](https://github.com/Microsoft/vscode-npm-scripts/issues/#60) Handle no scripts found gracefully
 - 0.3.3 fix for [#46](https://github.com/Microsoft/vscode-npm-scripts/issues/46) Cannot read property 'uri' of undefined
 - 0.3.1 fix for [#44](https://github.com/Microsoft/vscode-npm-scripts/issues/44) Exception when the workspace contains a root folder with another scheme than 'file'
