@@ -75,7 +75,7 @@ interface ScriptCommandDescription {
 	relativePath: string | undefined; // path relative to workspace root, if there is a root
 	name: string;
 	cmd: string;
-};
+}
 
 interface CommandArgument {
 	fsPath: string;
@@ -189,7 +189,7 @@ export function activate(context: ExtensionContext) {
 			terminal = null;
 		}
 	});
-	
+
 	context.subscriptions.push(languages.registerCodeActionsProvider({ language: 'json', scheme: 'file' }, new NpmCodeActionProvider()));
 }
 
@@ -474,7 +474,7 @@ function runNpmAudit() {
 
 function runNpmScript(): void {
 	runNpmCommandInPackages(['run-script'], false);
-};
+}
 
 function rerunLastScript(): void {
 	if (lastScript) {
@@ -493,7 +493,7 @@ function rerunLastScript(): void {
  *    - with scripts that match the name.
  */
 function commandDescriptionsInPackage(param: string[], packagePath: string, descriptions: ScriptCommandDescription[]) {
-	var absolutePath = packagePath;
+	const absolutePath = packagePath;
 	const fileUri = Uri.file(absolutePath);
 	const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
 	let rootUri: Uri | undefined = undefined;
@@ -512,7 +512,7 @@ function commandDescriptionsInPackage(param: string[], packagePath: string, desc
 			const contents = fs.readFileSync(fileName).toString();
 			const json = JSON.parse(contents);
 			if (json.scripts) {
-				var jsonScripts = json.scripts;
+				const jsonScripts = json.scripts;
 				Object.keys(jsonScripts).forEach(key => {
 					if (!name || key === name) {
 						descriptions.push({
@@ -579,7 +579,7 @@ async function doValidate(document: TextDocument) {
 			return;
 		}
 		const diagnostics: Diagnostic[] = [];
-		for (var moduleName in dependencies) {
+		for (const moduleName in dependencies) {
 			if (dependencies.hasOwnProperty(moduleName)) {
 				const diagnostic = getDiagnostic(document, report, moduleName, sourceRanges);
 				if (diagnostic) {
