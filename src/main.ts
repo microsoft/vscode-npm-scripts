@@ -297,6 +297,7 @@ function validateAllDocuments() {
 function registerCommands(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand('npm-script.install', runNpmInstall),
+		commands.registerCommand('npm-script.init', runNpmInit),
 		commands.registerCommand('npm-script.test', runNpmTest),
 		commands.registerCommand('npm-script.start', runNpmStart),
 		commands.registerCommand('npm-script.run', runNpmScript),
@@ -470,6 +471,10 @@ function runNpmBuild() {
 
 function runNpmAudit() {
 	runNpmCommandInPackages(['audit'], true);
+}
+
+function runNpmInit() {
+	runNpmCommandInPackages(['init'], true);
 }
 
 function runNpmScript(): void {
