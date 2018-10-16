@@ -18,7 +18,7 @@ Commands for running scripts are available the `npm` category.
 
 ![command palette](images/cmds.png)
 
-- Run npm install, also available in the context menu of the explorer when the `package.json` file is right-clicked
+- Run npm install, also available in the context menu of the explorer when the `package.json` file
 - Run a script (`npm run-script`) defined in the `package.json` by picking a script
 defined in the `scripts` section of the `package.json`.
 - Rerun the last npm script you have executed using this extension.
