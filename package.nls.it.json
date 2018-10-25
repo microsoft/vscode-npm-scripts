@@ -1,0 +1,12 @@
+{
+	"npm-script.command.install.title":"Installa Dipendenze",
+	"npm-script.command.terminate-script.title":"Termina Script",
+	"npm-script.command.run.title":"Esegui Script",
+	"npm-script.command.start.title":"Start",
+	"npm-script.command.showOutput.title":"Mostra Output",
+	"npm-script.command.rerun-last-script.title":"Riesegui Ultimo Script",
+	"npm-script.command.test.title":"Esegui Test",
+	"npm-script.command.build.title":"Esegui Build",
+	"npm-script.command.audit.title":"Esegui Audit",
+	"npm-script.command.init.title":"Esegui Init"
+}

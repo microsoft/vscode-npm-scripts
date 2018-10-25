@@ -39,52 +39,52 @@
 		"commands": [
 			{
 				"command": "npm-script.install",
-				"title": "Install Dependencies",
+				"title": "%npm-script.command.install.title%",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.terminate-script",
-				"title": "Terminate Script",
+				"title": "%npm-script.command.terminate-script.title%",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.run",
-				"title": "Run Script",
+				"title": "%npm-script.command.run.title%",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.start",
-				"title": "Start",
+				"title": "%npm-script.command.start.title%",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.showOutput",
-				"title": "Show Output",
+				"title": "%npm-script.command.showOutput.title%",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.rerun-last-script",
-				"title": "Rerun Last Script",
+				"title": "%npm-script.command.rerun-last-script.title%",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.test",
-				"title": "Run Test",
+				"title": "%npm-script.command.test.title%",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.build",
-				"title": "Run Build",
+				"title": "%npm-script.command.build.title%",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.audit",
-				"title": "Run Audit",
+				"title": "%npm-script.command.audit.title%",
 				"category": "npm"
 			},
 			{
 				"command": "npm-script.init",
-				"title": "Run Init",
+				"title": "%npm-script.command.init.title%",
 				"category": "npm"
 			}
 		],
