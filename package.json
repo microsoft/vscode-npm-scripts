@@ -1,207 +1,207 @@
 {
-  "name": "vscode-npm-script",
-  "description": "npm support for VS Code",
-  "displayName": "npm",
-  "version": "0.3.5",
-  "publisher": "eg2",
-  "icon": "npm_icon.png",
-  "engines": {
-    "vscode": "^1.17.0"
-  },
-  "homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Microsoft/vscode-npm-scripts.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Microsoft/vscode-npm-scripts/issues"
-  },
-  "categories": [
-    "Other"
-  ],
-  "keywords": [
-    "multi-root ready"
-  ],
-  "activationEvents": [
-    "onLanguage:json",
-    "onCommand:npm-script.install",
-    "onCommand:npm-script.run",
-    "onCommand:npm-script.showOutput",
-    "onCommand:npm-script.rerun-last-script",
-    "onCommand:npm-script.terminate-script",
-    "onCommand:npm-script.test",
-    "onCommand:npm-script.start",
-    "onCommand:npm-script.audit",
-    "onCommand:npm-script.init"
-  ],
-  "main": "./dist/extension",
-  "contributes": {
-    "commands": [
-      {
-        "command": "npm-script.install",
-        "title": "Install Dependencies",
-        "category": "npm",
-        "icon": "./assets/install.png"
-      },
-      {
-        "command": "npm-script.terminate-script",
-        "title": "Terminate Script",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.run",
-        "title": "Run Script",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.start",
-        "title": "Start",
-        "category": "npm",
-        "icon": "./assets/start.png"
-      },
-      {
-        "command": "npm-script.showOutput",
-        "title": "Show Output",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.rerun-last-script",
-        "title": "Rerun Last Script",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.test",
-        "title": "Run Test",
-        "category": "npm",
-        "icon": "./assets/test.png"
-      },
-      {
-        "command": "npm-script.build",
-        "title": "Run Build",
-        "category": "npm",
-        "icon": "./assets/build.png"
-      },
-      {
-        "command": "npm-script.audit",
-        "title": "Run Audit",
-        "category": "npm"
-      },
-      {
-        "command": "npm-script.init",
-        "title": "Run Init",
-        "category": "npm"
-      }
-    ],
-    "menus": {
-      "explorer/context": [
-        {
-          "when": "resourceFilename == 'package.json'",
-          "command": "npm-script.install",
-          "group": "navigation@+1"
-        }
-      ],
-      "touchBar": [
-        {
-          "command": "npm-script.install",
-          "group": "navigation@+1"
-        },
-        {
-          "command": "npm-script.build",
-          "group": "navigation@+4"
-        },
-        {
-          "command": "npm-script.test",
-          "group": "navigation@+3"
-        },
-        {
-          "command": "npm-script.start",
-          "group": "navigation@+2"
-        }
-      ]
-    },
-    "keybindings": [
-      {
-        "command": "npm-script.showOutput",
-        "key": "Ctrl+R L",
-        "mac": "Cmd+R L"
-      },
-      {
-        "command": "npm-script.run",
-        "key": "Ctrl+R Shift+R",
-        "mac": "Cmd+R Shift+R"
-      },
-      {
-        "command": "npm-script.rerun-last-script",
-        "key": "Ctrl+R R",
-        "mac": "Cmd+R R"
-      },
-      {
-        "command": "npm-script.terminate-script",
-        "key": "Ctrl+R Shift+X",
-        "mac": "Cmd+R Shift+X"
-      },
-      {
-        "command": "npm-script.test",
-        "key": "Ctrl+R T",
-        "mac": "Cmd+R T"
-      }
-    ],
-    "configuration": {
-      "type": "object",
-      "title": "npm Script Runner",
-      "properties": {
-        "npm.runInTerminal": {
-          "type": "boolean",
-          "default": true,
-          "description": "Run npm commands in a terminal, otherwise shows the output in the output panel"
-        },
-        "npm.includeDirectories": {
-          "type": "array",
-          "scope": "resource",
-          "default": [],
-          "description": "Look for 'package.json' files in these directories"
-        },
-        "npm.useRootDirectory": {
-          "type": "boolean",
-          "scope": "resource",
-          "default": true,
-          "description": "Look for 'package.json' in the root directory of the workspace"
-        },
-        "npm.bin": {
-          "type": "string",
-          "default": "npm",
-          "description": "npm bin name"
-        },
-        "npm.validate.enable": {
-          "type": "boolean",
-          "scope": "resource",
-          "default": true,
-          "description": "Validate installed modules"
-        }
-      }
-    }
-  },
-  "scripts": {
-    "vscode:prepublish": "webpack --mode production",
-    "webpack": "webpack --mode development",
-    "webpack-dev": "webpack --mode development --watch",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test",
-    "tslint": "tslint src/*.ts"
-  },
-  "devDependencies": {
-    "@types/mocha": "^2.2.32",
-    "@types/node": "^7.0.43",
-    "ts-loader": "^4.4.2",
-    "tslint": "^5.11.0",
-    "typescript": "3.0.3",
-    "vscode": "^1.1.22",
-    "webpack": "^4.19.1",
-    "webpack-cli": "^3.1.0"
-  },
-  "dependencies": {
-    "run-in-terminal": "^0.0.2",
-    "tree-kill": "^1.1.0",
-    "jsonc-parser": "^2.0.2"
-  }
+	"name": "vscode-npm-script",
+	"description": "npm support for VS Code",
+	"displayName": "npm",
+	"version": "0.3.5",
+	"publisher": "eg2",
+	"icon": "npm_icon.png",
+	"engines": {
+		"vscode": "^1.17.0"
+	},
+	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Microsoft/vscode-npm-scripts.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Microsoft/vscode-npm-scripts/issues"
+	},
+	"categories": [
+		"Other"
+	],
+	"keywords": [
+		"multi-root ready"
+	],
+	"activationEvents": [
+		"onLanguage:json",
+		"onCommand:npm-script.install",
+		"onCommand:npm-script.run",
+		"onCommand:npm-script.showOutput",
+		"onCommand:npm-script.rerun-last-script",
+		"onCommand:npm-script.terminate-script",
+		"onCommand:npm-script.test",
+		"onCommand:npm-script.start",
+		"onCommand:npm-script.audit",
+		"onCommand:npm-script.init"
+	],
+	"main": "./dist/extension",
+	"contributes": {
+		"commands": [
+			{
+				"command": "npm-script.install",
+				"title": "Install Dependencies",
+				"category": "npm",
+				"icon": "./assets/install.png"
+			},
+			{
+				"command": "npm-script.terminate-script",
+				"title": "Terminate Script",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.run",
+				"title": "Run Script",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.start",
+				"title": "Start",
+				"category": "npm",
+				"icon": "./assets/start.png"
+			},
+			{
+				"command": "npm-script.showOutput",
+				"title": "Show Output",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.rerun-last-script",
+				"title": "Rerun Last Script",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.test",
+				"title": "Run Test",
+				"category": "npm",
+				"icon": "./assets/test.png"
+			},
+			{
+				"command": "npm-script.build",
+				"title": "Run Build",
+				"category": "npm",
+				"icon": "./assets/build.png"
+			},
+			{
+				"command": "npm-script.audit",
+				"title": "Run Audit",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.init",
+				"title": "Run Init",
+				"category": "npm"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "resourceFilename == 'package.json'",
+					"command": "npm-script.install",
+					"group": "navigation@+1"
+				}
+			],
+			"touchBar": [
+				{
+					"command": "npm-script.install",
+					"group": "navigation@+1"
+				},
+				{
+					"command": "npm-script.build",
+					"group": "navigation@+4"
+				},
+				{
+					"command": "npm-script.test",
+					"group": "navigation@+3"
+				},
+				{
+					"command": "npm-script.start",
+					"group": "navigation@+2"
+				}
+			]
+		},
+		"keybindings": [
+			{
+				"command": "npm-script.showOutput",
+				"key": "Ctrl+R L",
+				"mac": "Cmd+R L"
+			},
+			{
+				"command": "npm-script.run",
+				"key": "Ctrl+R Shift+R",
+				"mac": "Cmd+R Shift+R"
+			},
+			{
+				"command": "npm-script.rerun-last-script",
+				"key": "Ctrl+R R",
+				"mac": "Cmd+R R"
+			},
+			{
+				"command": "npm-script.terminate-script",
+				"key": "Ctrl+R Shift+X",
+				"mac": "Cmd+R Shift+X"
+			},
+			{
+				"command": "npm-script.test",
+				"key": "Ctrl+R T",
+				"mac": "Cmd+R T"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "npm Script Runner",
+			"properties": {
+				"npm.runInTerminal": {
+					"type": "boolean",
+					"default": true,
+					"description": "Run npm commands in a terminal, otherwise shows the output in the output panel"
+				},
+				"npm.includeDirectories": {
+					"type": "array",
+					"scope": "resource",
+					"default": [],
+					"description": "Look for 'package.json' files in these directories"
+				},
+				"npm.useRootDirectory": {
+					"type": "boolean",
+					"scope": "resource",
+					"default": true,
+					"description": "Look for 'package.json' in the root directory of the workspace"
+				},
+				"npm.bin": {
+					"type": "string",
+					"default": "npm",
+					"description": "npm bin name"
+				},
+				"npm.validate.enable": {
+					"type": "boolean",
+					"scope": "resource",
+					"default": true,
+					"description": "Validate installed modules"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "webpack --mode production",
+		"webpack": "webpack --mode development",
+		"webpack-dev": "webpack --mode development --watch",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test",
+		"tslint": "tslint src/*.ts"
+	},
+	"devDependencies": {
+		"@types/mocha": "^2.2.32",
+		"@types/node": "^7.0.43",
+		"ts-loader": "^4.4.2",
+		"tslint": "^5.11.0",
+		"typescript": "3.0.3",
+		"vscode": "^1.1.22",
+		"webpack": "^4.19.1",
+		"webpack-cli": "^3.1.0"
+	},
+	"dependencies": {
+		"run-in-terminal": "^0.0.2",
+		"tree-kill": "^1.1.0",
+		"jsonc-parser": "^2.0.2"
+	}
 }
