@@ -40,7 +40,8 @@
 			{
 				"command": "npm-script.install",
 				"title": "Install Dependencies",
-				"category": "npm"
+				"category": "npm",
+				"icon": "./assets/install.png"
 			},
 			{
 				"command": "npm-script.terminate-script",
@@ -55,7 +56,8 @@
 			{
 				"command": "npm-script.start",
 				"title": "Start",
-				"category": "npm"
+				"category": "npm",
+				"icon": "./assets/start.png"
 			},
 			{
 				"command": "npm-script.showOutput",
@@ -70,12 +72,14 @@
 			{
 				"command": "npm-script.test",
 				"title": "Run Test",
-				"category": "npm"
+				"category": "npm",
+				"icon": "./assets/test.png"
 			},
 			{
 				"command": "npm-script.build",
 				"title": "Run Build",
-				"category": "npm"
+				"category": "npm",
+				"icon": "./assets/build.png"
 			},
 			{
 				"command": "npm-script.audit",
@@ -94,6 +98,24 @@
 					"when": "resourceFilename == 'package.json'",
 					"command": "npm-script.install",
 					"group": "navigation@+1"
+				}
+			],
+			"touchBar": [
+				{
+					"command": "npm-script.install",
+					"group": "navigation@+1"
+				},
+				{
+					"command": "npm-script.build",
+					"group": "navigation@+4"
+				},
+				{
+					"command": "npm-script.test",
+					"group": "navigation@+3"
+				},
+				{
+					"command": "npm-script.start",
+					"group": "navigation@+2"
 				}
 			]
 		},
