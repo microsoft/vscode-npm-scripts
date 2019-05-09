@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "npm support for VS Code",
 	"displayName": "npm",
-	"version": "0.3.6",
+	"version": "0.3.7",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
@@ -186,7 +186,7 @@
 					"type": "boolean",
 					"scope": "resource",
 					"default": false,
-					"description": "Enable the npm scripts on macOS touchbar."
+					"description": "Enable npm commands in the macOS touchbar."
 				}
 			}
 		}
