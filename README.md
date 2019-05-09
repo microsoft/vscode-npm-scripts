@@ -45,6 +45,7 @@ Support for Macbook Pro touch bar. You can run the following commands:
 - `npm.useRootDirectory` define whether the root directory of the workspace should be ignored, the default is `false`.
 - `npm.runSilent` run npm commands with the `--silent` option, the default is `false`.
 - `npm.bin` custom npm bin name, the default is `npm`.
+- `npm.enableTouchbar` Enable the npm scripts on macOS touchbar.
 
 ##### Example
 

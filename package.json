@@ -181,6 +181,12 @@
 					"scope": "resource",
 					"default": true,
 					"description": "Validate installed modules"
+				},
+				"npm.enableTouchbar": {
+					"type": "boolean",
+					"scope": "resource",
+					"default": false,
+					"description": "Enable the npm scripts on macOS touchbar."
 				}
 			}
 		}
