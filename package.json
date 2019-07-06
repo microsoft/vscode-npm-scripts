@@ -2,11 +2,11 @@
 	"name": "vscode-npm-script",
 	"description": "npm support for VS Code",
 	"displayName": "npm",
-	"version": "0.3.7",
+	"version": "0.3.8",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
-		"vscode": "^1.17.0"
+		"vscode": "^1.36.0"
 	},
 	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
 	"repository": {
