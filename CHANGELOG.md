@@ -1,3 +1,4 @@
+- 0.3.10 Address github reported vulnerabilitiesd.
 - 0.3.9 Address github reported vulnerabilitiesd.
 - 0.3.8 Address github reported vulnerabilitiesd.
 - 0.3.7 Add setting `npm.enableTouchbar` to control whether npm commands should be shown in the touchbar.
