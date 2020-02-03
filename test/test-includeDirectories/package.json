@@ -4,7 +4,7 @@
 	"description": "Testing npm.includeDirectories part 1",
 	"scripts": {
 		"testA": "npm config get tag",
-		"lintA": "tslint",
+		"lintA": "echo lint",
 		"folder1-shellA": "npm config get shell",
 		"postinstall": "echo test-includeDirectories"
 	},

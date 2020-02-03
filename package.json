@@ -197,21 +197,23 @@
 		"webpack-dev": "webpack --mode development --watch",
 		"postinstall": "node ./node_modules/vscode/bin/install",
 		"test": "npm run compile && node ./node_modules/vscode/bin/test",
-		"tslint": "tslint src/*.ts"
+		"lint": "eslint -c .eslintrc.js --ext .ts src/*.ts"
 	},
 	"devDependencies": {
 		"@types/mocha": "^2.2.32",
 		"@types/node": "^7.0.43",
+		"@typescript-eslint/eslint-plugin": "^2.18.0",
+		"@typescript-eslint/parser": "^2.18.0",
+		"eslint": "^6.8.0",
 		"ts-loader": "^4.4.2",
-		"tslint": "^5.11.0",
-		"typescript": "3.0.3",
+		"typescript": "^3.7.5",
 		"vscode": "^1.1.22",
 		"webpack": "^4.39.1",
 		"webpack-cli": "^3.3.0"
 	},
 	"dependencies": {
+		"jsonc-parser": "^2.1.0",
 		"run-in-terminal": "^0.0.2",
-		"tree-kill": "^1.2.0",
-		"jsonc-parser": "^2.1.0"
+		"tree-kill": "^1.2.2"
 	}
 }

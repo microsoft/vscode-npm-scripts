@@ -666,7 +666,7 @@ function getDiagnostic(document: TextDocument, report: NpmListReport, moduleName
 	return diagnostic;
 }
 
-function findAttributeRange(ranges: SourceRanges): { offset: number, length: number } {
+function findAttributeRange(ranges: SourceRanges): { offset: number; length: number } {
 	let source = null;
 	if (ranges.properties['dependencies']) {
 		source = ranges.properties['dependencies'].name;
