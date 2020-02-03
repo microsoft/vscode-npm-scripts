@@ -1,6 +1,7 @@
-- 0.3.10 Address github reported vulnerabilitiesd.
-- 0.3.9 Address github reported vulnerabilitiesd.
-- 0.3.8 Address github reported vulnerabilitiesd.
+- 0.3.11 Address github reported vulnerabilities. Migrate from tslint to eslint.
+- 0.3.10 Address github reported vulnerabilities.
+- 0.3.9 Address github reported vulnerabilities.
+- 0.3.8 Address github reported vulnerabilities.
 - 0.3.7 Add setting `npm.enableTouchbar` to control whether npm commands should be shown in the touchbar.
 - 0.3.6 Add Macbook-Pro's touch bar support
 - 0.3.5 add support for running `npm audit` [#62](https://github.com/Microsoft/vscode-npm-scripts/issues/#62) Handle no scripts found gracefully
