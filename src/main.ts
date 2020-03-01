@@ -181,6 +181,9 @@ export function activate(context: ExtensionContext) {
 	workspace.onDidChangeConfiguration(_event => loadConfiguration(context), null, context.subscriptions);
 	loadConfiguration(context);
 
+	const root = workspace.rootPath;
+	console.log(root);
+
 	outputChannel = window.createOutputChannel('npm');
 	context.subscriptions.push(outputChannel);
 
