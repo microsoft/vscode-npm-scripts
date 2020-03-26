@@ -13,7 +13,7 @@ import { kill } from 'tree-kill';
 import { parseTree, Node, ParseError } from 'jsonc-parser';
 import { ThrottledDelayer } from './async';
 
-interface Script extends QuickPickItem {
+interface Script extends QuickPickItem {  // @egamma #80 #78 @
 	scriptName: string;
 	cwd: string | undefined;
 	execute(): void;
