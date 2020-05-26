@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "npm support for VS Code",
 	"displayName": "npm",
-	"version": "0.3.11",
+	"version": "0.3.12",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
