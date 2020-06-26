@@ -1,4 +1,4 @@
-# Node npm change
+# Node npm change cahnge
 
 This extension supports running npm scripts defined in the `package.json` file and validating the installed modules
 against the dependencies defined in the `package.json`.
