@@ -127,27 +127,32 @@
 			{
 				"command": "npm-script.showOutput",
 				"key": "Ctrl+R L",
-				"mac": "Cmd+R L"
+				"mac": "Cmd+R L",
+				"when": "!terminalFocus"
 			},
 			{
 				"command": "npm-script.run",
 				"key": "Ctrl+R Shift+R",
-				"mac": "Cmd+R Shift+R"
+				"mac": "Cmd+R Shift+R",
+				"when": "!terminalFocus"
 			},
 			{
 				"command": "npm-script.rerun-last-script",
 				"key": "Ctrl+R R",
-				"mac": "Cmd+R R"
+				"mac": "Cmd+R R",
+				"when": "!terminalFocus"
 			},
 			{
 				"command": "npm-script.terminate-script",
 				"key": "Ctrl+R Shift+X",
-				"mac": "Cmd+R Shift+X"
+				"mac": "Cmd+R Shift+X",
+				"when": "!terminalFocus"
 			},
 			{
 				"command": "npm-script.test",
 				"key": "Ctrl+R T",
-				"mac": "Cmd+R T"
+				"mac": "Cmd+R T",
+				"when": "!terminalFocus"
 			}
 		],
 		"configuration": {
