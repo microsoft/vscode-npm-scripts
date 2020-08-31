@@ -136,7 +136,7 @@ class NpmCodeActionProvider implements CodeActionProvider {
 			if (diag.source === 'npm') {
 				let result = /^Module '(\S*)' is not installed/.exec(diag.message);
 				if (result) {
-					const moduleName = result[1];
+					const moduleName = result[1]; 
 					addFixNpmInstallModule(cmds, moduleName);
 					addFixNpmInstall(cmds);
 					addFixValidate(cmds);
