@@ -1,5 +1,5 @@
 # Node npm
-
+// fix
 This extension supports running npm scripts defined in the `package.json` file and validating the installed modules
 against the dependencies defined in the `package.json`.
 
