@@ -220,5 +220,8 @@
 		"jsonc-parser": "^2.1.0",
 		"run-in-terminal": "^0.0.2",
 		"tree-kill": "^1.2.2"
+	},
+	"peerDependencies": {
+		"ajv": "^6.12.6"
 	}
 }
