@@ -1,9 +1,9 @@
 # Node npm
 
 [![vscode version][vs-image]][vs-url]
-![][install-url]
-![][rate-url]
-![][license-url]
+![number of installs][install-url]
+![average user rating][rate-url]
+![license][license-url]
 
 This extension supports running npm scripts defined in the `package.json` file and validating the installed modules
 against the dependencies defined in the `package.json`.
@@ -52,15 +52,15 @@ Support for Macbook Pro touch bar. You can run the following commands:
 - `npm.bin` custom npm bin name, the default is `npm`.
 - `npm.enableTouchbar` Enable the npm scripts on macOS touchbar.
 
-##### Example
+### Example
 
 ```javascript
 {
-	"npm.runInTerminal": false,
-	"npm.includeDirectories": [
-		"subdir1/path",
-		"subdir2/path"
-	]
+  "npm.runInTerminal": false,
+  "npm.includeDirectories": [
+    "subdir1/path",
+    "subdir2/path"
+  ]
 }
 ```
 
