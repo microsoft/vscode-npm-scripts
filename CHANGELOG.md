@@ -1,3 +1,6 @@
+# vscode-npm-scripts Changelog
+
+- 0.3.14 Add badges to README.md
 - 0.3.13 Fix for [#129](https://github.com/Microsoft/vscode-npm-scripts/issues/#129) Add !terminalFocus to keyboard extensions that use Ctrl + R 
 - 0.3.12 Address github reported vulnerabilities.
 - 0.3.11 Address github reported vulnerabilities. Migrate from tslint to eslint.
@@ -21,7 +24,7 @@
 - 0.1.0 added support for validating module dependencies
 - 0.0.21 added command to run `npm start`.
 - 0.0.20 when commands are run in the terminal, then the **integrated terminal** is used.
-- 0.0.16 added `npm install ` to the context menu on `package.json` in the explorer.
+- 0.0.16 added `npm install` to the context menu on `package.json` in the explorer.
 - 0.0.15 added setting to run npm commands with `--silent`.
 - 0.0.15 tweaks to the README so that the extension is found when searching for node.
 - 0.0.14 added command to terminate a running script
