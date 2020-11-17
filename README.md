@@ -1,9 +1,10 @@
 # Node npm
 
-[![vscode version][vs-image]][vs-url]
-![number of installs][install-url]
-![average user rating][rate-url]
-![license][license-url]
+![vscode version](https://vsmarketplacebadge.apphb.com/version/eg2.vscode-npm-script.svg)
+![number of installs](https://vsmarketplacebadge.apphb.com/installs/eg2.vscode-npm-script.svg)
+![average user rating](https://vsmarketplacebadge.apphb.com/rating/eg2.vscode-npm-script.svg)
+![license](https://img.shields.io/github/license/microsoft/vscode-npm-scripts.svg)
+
 
 This extension supports running npm scripts defined in the `package.json` file and validating the installed modules
 against the dependencies defined in the `package.json`.
