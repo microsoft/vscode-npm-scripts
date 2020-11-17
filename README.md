@@ -1,5 +1,11 @@
 # Node npm
 
+![vscode version](https://vsmarketplacebadge.apphb.com/version/eg2.vscode-npm-script.svg)
+![number of installs](https://vsmarketplacebadge.apphb.com/installs/eg2.vscode-npm-script.svg)
+![average user rating](https://vsmarketplacebadge.apphb.com/rating/eg2.vscode-npm-script.svg)
+![license](https://img.shields.io/github/license/microsoft/vscode-npm-scripts.svg)
+
+
 This extension supports running npm scripts defined in the `package.json` file and validating the installed modules
 against the dependencies defined in the `package.json`.
 
@@ -47,18 +53,24 @@ Support for Macbook Pro touch bar. You can run the following commands:
 - `npm.bin` custom npm bin name, the default is `npm`.
 - `npm.enableTouchbar` Enable the npm scripts on macOS touchbar.
 
-##### Example
+### Example
 
 ```javascript
 {
-	"npm.runInTerminal": false,
-	"npm.includeDirectories": [
-		"subdir1/path",
-		"subdir2/path"
-	]
+  "npm.runInTerminal": false,
+  "npm.includeDirectories": [
+    "subdir1/path",
+    "subdir2/path"
+  ]
 }
 ```
 
 ## Keyboard Shortcuts
 
 The extension defines a chording keyboard shortcut for the `R` key. As a consequence an existing keybinding for `R` is not executed immediately. If this is not desired, then please bind another key for these commands, see the [customization](https://code.visualstudio.com/docs/customization/keybindings) documentation.
+
+[vs-url]: https://marketplace.visualstudio.com/items?itemName=eg2.vscode-npm-script
+[vs-image]: https://vsmarketplacebadge.apphb.com/version/eg2.vscode-npm-script.svg
+[install-url]: https://vsmarketplacebadge.apphb.com/installs/eg2.vscode-npm-script.svg
+[rate-url]: https://vsmarketplacebadge.apphb.com/rating/eg2.vscode-npm-script.svg
+[license-url]: https://img.shields.io/github/license/microsoft/vscode-npm-scripts.svg
