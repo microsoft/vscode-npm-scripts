@@ -306,6 +306,7 @@ function registerCommands(context: ExtensionContext) {
 		commands.registerCommand('npm-script.rerun-last-script', rerunLastScript),
 		commands.registerCommand('npm-script.build', runNpmBuild),
 		commands.registerCommand('npm-script.audit', runNpmAudit),
+		commands.registerCommand('npm-script.outdated', runNpmOutdated),
 		commands.registerCommand('npm-script.installInOutputWindow', runNpmInstallInOutputWindow),
 		commands.registerCommand('npm-script.uninstallInOutputWindow', runNpmUninstallInOutputWindow),
 		commands.registerCommand('npm-script.validate', validateAllDocuments),
@@ -472,6 +473,10 @@ function runNpmBuild() {
 
 function runNpmAudit() {
 	runNpmCommandInPackages(['audit'], true);
+}
+
+function runNpmOutdated() {
+	runNpmCommandInPackages(['outdated'], true);
 }
 
 function runNpmInit() {
