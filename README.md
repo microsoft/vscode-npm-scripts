@@ -5,7 +5,7 @@
 ![average user rating](https://vsmarketplacebadge.apphb.com/rating/eg2.vscode-npm-script.svg)
 ![license](https://img.shields.io/github/license/microsoft/vscode-npm-scripts.svg)
 
-
+Test 
 This extension supports running npm scripts defined in the `package.json` file and validating the installed modules
 against the dependencies defined in the `package.json`.
 
