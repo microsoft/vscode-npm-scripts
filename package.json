@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "npm support for VS Code",
 	"displayName": "npm",
-	"version": "0.3.14",
+	"version": "0.3.15",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
@@ -177,6 +177,7 @@
 					"description": "Look for 'package.json' in the root directory of the workspace"
 				},
 				"npm.bin": {
+					"scope": "machine",
 					"type": "string",
 					"default": "npm",
 					"description": "npm bin name"

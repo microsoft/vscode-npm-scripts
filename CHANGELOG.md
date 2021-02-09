@@ -1,7 +1,7 @@
 # vscode-npm-scripts Changelog
-
+- 0.3.15 Fix [CVE-2021-26700](https://msrc.microsoft.com/update-guide/vulnerability)
 - 0.3.14 Add badges to README.md
-- 0.3.13 Fix for [#129](https://github.com/Microsoft/vscode-npm-scripts/issues/#129) Add !terminalFocus to keyboard extensions that use Ctrl + R 
+- 0.3.13 Fix for [#129](https://github.com/Microsoft/vscode-npm-scripts/issues/#129) Add !terminalFocus to keyboard extensions that use Ctrl + R
 - 0.3.12 Address github reported vulnerabilities.
 - 0.3.11 Address github reported vulnerabilities. Migrate from tslint to eslint.
 - 0.3.10 Address github reported vulnerabilities.
