@@ -1,4 +1,5 @@
 # vscode-npm-scripts Changelog
+- 0.3.17 Address github reported vulnerabilities.
 - 0.3.16 Update dependencies and fix the CVE link below.
 - 0.3.15 Fix [CVE-2021-26700](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-26700)
 - 0.3.14 Add badges to README.md
