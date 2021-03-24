@@ -32,6 +32,7 @@
 		"onCommand:npm-script.test",
 		"onCommand:npm-script.start",
 		"onCommand:npm-script.audit",
+		"onCommand:npm-script.outdated",
 		"onCommand:npm-script.init"
 	],
 	"main": "./dist/extension",
@@ -84,6 +85,11 @@
 			{
 				"command": "npm-script.audit",
 				"title": "Run Audit",
+				"category": "npm"
+			},
+			{
+				"command": "npm-script.outdated",
+				"title": "Run Outdated",
 				"category": "npm"
 			},
 			{
