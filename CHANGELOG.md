@@ -1,4 +1,5 @@
 # vscode-npm-scripts Changelog
+- 0.3.19 Address github reported vulnerabilities.
 - 0.3.18 Add the `npm outdated` command, thanks to https://github.com/joet3ch.
 - 0.3.17 Address github reported vulnerabilities.
 - 0.3.16 Update dependencies and fix the CVE link below.
