@@ -4,6 +4,7 @@
 	"displayName": "npm",
 	"version": "0.3.21",
 	"publisher": "eg2",
+	"license": "MIT",
 	"icon": "npm_icon.png",
 	"engines": {
 		"vscode": "^1.44.0"
