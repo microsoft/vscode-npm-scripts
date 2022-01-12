@@ -20,5 +20,8 @@ extends:
   template: azure-pipelines/vscode-extension.yml@templates
   parameters:
     buildSteps:
-      - script: npm install
+      - script: npm ci
         displayName: Install dependencies
+
+      - script: npm run vscode:prepublish
+        displayName: Compile
