@@ -2,8 +2,10 @@
 typings/**
 out/test/**
 test/**
+build/**
 src/**
 **/*.map
 .gitignore
 tsconfig.json
 vsc-extension-quickstart.md
+issues.github-issues
