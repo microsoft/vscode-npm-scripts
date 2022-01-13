@@ -29,6 +29,6 @@ extends:
       - script: npm ci
         displayName: Install dependencies
 
-      - script: npm run vscode:prepublish
+      - script: npm run compile
         displayName: Compile
     publishExtension: ${{ parameters.publishExtension }}
