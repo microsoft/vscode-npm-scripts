@@ -207,7 +207,7 @@
 		}
 	},
 	"scripts": {
-		"compile": "webpack --mode production",
+		"vscode:prepublish": "webpack --mode production",
 		"webpack": "webpack --mode development",
 		"webpack-dev": "webpack --mode development --watch",
 		"test": "npm run compile && node ./node_modules/vscode/bin/test",

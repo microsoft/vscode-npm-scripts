@@ -25,10 +25,4 @@ parameters:
 extends:
   template: azure-pipelines/extension/stable.yml@templates
   parameters:
-    buildSteps:
-      - script: npm ci
-        displayName: Install dependencies
-
-      - script: npm run compile
-        displayName: Compile
     publishExtension: ${{ parameters.publishExtension }}
