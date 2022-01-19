@@ -1,4 +1,5 @@
 # vscode-npm-scripts Changelog
+- 0.3.24 Update the `thirdpartynotices.txt` file.
 - 0.3.23 Address github reported vulnerabilities.
 - 0.3.22 Address github reported vulnerabilities.
 - 0.3.21 Address github reported vulnerabilities.
