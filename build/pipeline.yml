@@ -25,6 +25,9 @@ parameters:
 extends:
   template: azure-pipelines/extension/stable.yml@templates
   parameters:
+    buildsPlatforms:
+      - Linux
+      - Windows
     buildSteps:
       - script: npm ci
         displayName: Install dependencies
