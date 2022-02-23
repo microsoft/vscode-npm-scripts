@@ -27,7 +27,6 @@ extends:
   parameters:
     buildPlatforms:
       - MacOS
-      - Windows
     buildSteps:
       - script: npm ci
         displayName: Install dependencies
