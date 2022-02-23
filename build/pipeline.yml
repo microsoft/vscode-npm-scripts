@@ -27,6 +27,7 @@ extends:
   parameters:
     buildPlatforms:
       - Linux
+      - MacOS
       - Windows
     buildSteps:
       - script: npm ci
