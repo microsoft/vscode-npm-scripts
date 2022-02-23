@@ -26,7 +26,6 @@ extends:
   template: azure-pipelines/extension/stable.yml@templates
   parameters:
     buildPlatforms:
-      - Linux
       - MacOS
     buildSteps:
       - script: npm ci
