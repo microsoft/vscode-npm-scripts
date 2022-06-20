@@ -6,10 +6,20 @@
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
-		"vscode": "^1.44.0"
+		"vscode": "^1.66.0"
 	},
-	"workspaceTrust": {
-		"request": "never"
+	"capabilities": {
+		"virtualWorkspaces": {
+			"supported": false,
+			"description": "Npm scripts running is not possible in virtual workspaces."
+		},
+		"untrustedWorkspaces": {
+			"supported": false,
+			"description": "The extension requires workspace trust because it runs npm scripts from the workspace.",
+			"restrictedConfigurations": [
+				"npm.bin"
+			]
+		}
 	},
 	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
 	"repository": {
@@ -186,7 +196,6 @@
 					"description": "Look for 'package.json' in the root directory of the workspace"
 				},
 				"npm.bin": {
-					"scope": "machine",
 					"type": "string",
 					"default": "npm",
 					"description": "npm bin name"
