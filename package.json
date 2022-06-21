@@ -137,31 +137,55 @@
 				"command": "npm-script.showOutput",
 				"key": "Ctrl+R L",
 				"mac": "Cmd+R L",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
 			},
 			{
 				"command": "npm-script.run",
 				"key": "Ctrl+R Shift+R",
 				"mac": "Cmd+R Shift+R",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
 			},
 			{
 				"command": "npm-script.rerun-last-script",
 				"key": "Ctrl+R R",
 				"mac": "Cmd+R R",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
 			},
 			{
 				"command": "npm-script.terminate-script",
 				"key": "Ctrl+R Shift+X",
 				"mac": "Cmd+R Shift+X",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
 			},
 			{
 				"command": "npm-script.test",
 				"key": "Ctrl+R T",
 				"mac": "Cmd+R T",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
+			},
+			{
+				"command": "npm-script.run",
+				"key": "Ctrl+K N Shift+R",
+				"mac": "Cmd+K N Shift+R",
+				"when": "!terminalFocus && !config.npm.keybindingCompatibility.enable"
+			},
+			{
+				"command": "npm-script.rerun-last-script",
+				"key": "Ctrl+K N R",
+				"mac": "Cmd+K N R",
+				"when": "!terminalFocus && !config.npm.keybindingCompatibility.enable"
+			},
+			{
+				"command": "npm-script.terminate-script",
+				"key": "Ctrl+K N R Shift+X",
+				"mac": "Cmd+K N Shift+X",
+				"when": "!terminalFocus && !config.npm.keybindingCompatibility.enable"
+			},
+			{
+				"command": "npm-script.test",
+				"key": "Ctrl+K N R T",
+				"mac": "Cmd+K N T",
+				"when": "!terminalFocus && !config.npm.keybindingCompatibility.enable"
 			}
 		],
 		"configuration": {
@@ -202,6 +226,12 @@
 					"scope": "resource",
 					"default": false,
 					"description": "Enable npm commands in the macOS touchbar."
+				},
+				"npm.keybindingCompatibility.enable": {
+					"type": "boolean",
+					"scope": "resource",
+					"default": true,
+					"description": "Enable the old cmd/ctrl R chording key bindings."
 				}
 			}
 		}
