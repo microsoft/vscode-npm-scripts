@@ -144,55 +144,55 @@
 				"command": "npm-script.showOutput",
 				"key": "Ctrl+R L",
 				"mac": "Cmd+R L",
-				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.run",
 				"key": "Ctrl+R Shift+R",
 				"mac": "Cmd+R Shift+R",
-				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.rerun-last-script",
 				"key": "Ctrl+R R",
 				"mac": "Cmd+R R",
-				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.terminate-script",
 				"key": "Ctrl+R Shift+X",
 				"mac": "Cmd+R Shift+X",
-				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.test",
 				"key": "Ctrl+R T",
 				"mac": "Cmd+R T",
-				"when": "!terminalFocus && config.npm.keybindingCompatibility.enable"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.run",
-				"key": "Ctrl+K N Shift+R",
-				"mac": "Cmd+K N Shift+R",
-				"when": "!terminalFocus && !config.npm.keybindingCompatibility.enable"
+				"key": "Ctrl+K Shift+R",
+				"mac": "Cmd+K Shift+R",
+				"when": "!config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.rerun-last-script",
-				"key": "Ctrl+K N R",
-				"mac": "Cmd+K N R",
-				"when": "!terminalFocus && !config.npm.keybindingCompatibility.enable"
+				"key": "Ctrl+K L",
+				"mac": "Cmd+K  L",
+				"when": "!config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.terminate-script",
-				"key": "Ctrl+K N R Shift+X",
-				"mac": "Cmd+K N Shift+X",
-				"when": "!terminalFocus && !config.npm.keybindingCompatibility.enable"
+				"key": "Ctrl+K Shift+X",
+				"mac": "Cmd+K Shift+X",
+				"when": "!config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.test",
-				"key": "Ctrl+K N R T",
-				"mac": "Cmd+K N T",
-				"when": "!terminalFocus && !config.npm.keybindingCompatibility.enable"
+				"key": "Ctrl+K T",
+				"mac": "Cmd+K T",
+				"when": "!config.npm.oldKeybindings.enable"
 			}
 		],
 		"configuration": {
@@ -233,7 +233,7 @@
 					"default": false,
 					"description": "Enable npm commands in the macOS touchbar."
 				},
-				"npm.keybindingCompatibility.enable": {
+				"npm.oldKeybindings.enable": {
 					"type": "boolean",
 					"scope": "resource",
 					"default": true,

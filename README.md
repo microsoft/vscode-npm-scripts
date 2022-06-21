@@ -51,6 +51,7 @@ Support for Macbook Pro touch bar. You can run the following commands:
 - `npm.runSilent` run npm commands with the `--silent` option, the default is `false`.
 - `npm.bin` custom npm bin name, the default is `npm`.
 - `npm.enableTouchbar` Enable the npm scripts on macOS touchbar.
+- `npm.oldKeybindings.enable` Enable the original npm keybindings that start with `cmd/ctrl R`
 
 ### Example
 
@@ -66,7 +67,16 @@ Support for Macbook Pro touch bar. You can run the following commands:
 
 ## Keyboard Shortcuts
 
-The extension defines a chording keyboard shortcut for the `R` key. As a consequence an existing keybinding for `R` is not executed immediately. If this is not desired, then please bind another key for these commands, see the [customization](https://code.visualstudio.com/docs/customization/keybindings) documentation.
+This extension originally defined a chording keyboard shortcut for the `R` key. This has resulted in conflicts with the keybindings provided by VS Code and has caused frustration. To avoid these conflicts the keybindings have been changed to use the existing chording shortcut starting with the `K` key. The following table shows the default key bindings that can always be changed, see the [customization](https://code.visualstudio.com/docs/customization/keybindings) documentation.
+
+| Command     | Old         | New       |
+| ----------- | ----------- |-----------|
+| Rerun last script | `CMD+R R` | `CMD+K L` |
+| Select script to run | `CMD+R SHIFT+R` | `CMD+K SHIFT+R` |
+| Terminate running script | `CMD+R SHIFT+X` | `CMD+K SHIFT+X` |
+| Run test script | `CMD+R T` | `CMD+K T` |
+
+If you prefer the old keybindings starting with `R` you can define the setting `npm.oldKeybindings.enable` to `true`.
 
 [vs-url]: https://marketplace.visualstudio.com/items?itemName=eg2.vscode-npm-script
 [vs-image]: https://vsmarketplacebadge.apphb.com/version/eg2.vscode-npm-script.svg
