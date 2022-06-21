@@ -15,10 +15,7 @@
 		},
 		"untrustedWorkspaces": {
 			"supported": false,
-			"description": "The extension requires workspace trust because it runs npm scripts from the workspace.",
-			"restrictedConfigurations": [
-				"npm.bin"
-			]
+			"description": "The extension requires workspace trust because it runs npm scripts from the workspace."
 		}
 	},
 	"homepage": "https://github.com/Microsoft/vscode-npm-scripts/blob/master/README.md",
