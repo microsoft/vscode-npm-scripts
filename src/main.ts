@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import {
 	window, commands, workspace, languages, OutputChannel, ExtensionContext, ViewColumn,
 	QuickPickItem, Terminal, DiagnosticCollection, Diagnostic, Range, TextDocument, DiagnosticSeverity,
-	CodeActionProvider, CodeActionContext, CancellationToken, Command, Uri
+	CodeActionProvider, CodeActionContext, CancellationToken, Command, Uri, env
 } from 'vscode';
 
 import { runInTerminal } from 'run-in-terminal';
@@ -192,6 +192,26 @@ export function activate(context: ExtensionContext) {
 	});
 
 	context.subscriptions.push(languages.registerCodeActionsProvider({ language: 'json', scheme: 'file' }, new NpmCodeActionProvider()));
+
+	showKeybindingWarning(context);
+}
+
+async function showKeybindingWarning(context: ExtensionContext) {
+	context.globalState?.setKeysForSync([
+		'keyBindingWarningShown'
+	]);
+	const gotIt = "OK, Got It";
+	const learnMore = "Learn More";
+
+	const warningShown = context.globalState.get<boolean>('keyBindingWarningShown');
+	if (!warningShown) {
+		const result = await window.showWarningMessage("The key bindings of the npm-scripts extension have changed!", learnMore, gotIt);
+		if (result === gotIt) {
+			context.globalState.update('keyBindingWarningShown', true);
+		} else if (result === learnMore) {
+			env.openExternal(Uri.parse('https://github.com/microsoft/vscode-npm-scripts#keyboard-shortcuts'));
+		}
+	}
 }
 
 export function deactivate() {
