@@ -243,7 +243,7 @@
 				"npm.oldKeybindings.enable": {
 					"type": "boolean",
 					"scope": "resource",
-					"default": true,
+					"default": false,
 					"description": "Enable the old cmd/ctrl R chording key bindings."
 				},
 				"npm.keybindingsChangedWarningShown": {
