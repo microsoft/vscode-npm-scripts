@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import {
 	window, commands, workspace, languages, OutputChannel, ExtensionContext, ViewColumn,
 	QuickPickItem, Terminal, DiagnosticCollection, Diagnostic, Range, TextDocument, DiagnosticSeverity,
-	CodeActionProvider, CodeActionContext, CancellationToken, Command, Uri, env
+	CodeActionProvider, CodeActionContext, CancellationToken, Command, Uri, ConfigurationTarget, env
 } from 'vscode';
 
 import { runInTerminal } from 'run-in-terminal';
@@ -192,26 +192,6 @@ export function activate(context: ExtensionContext) {
 	});
 
 	context.subscriptions.push(languages.registerCodeActionsProvider({ language: 'json', scheme: 'file' }, new NpmCodeActionProvider()));
-
-	showKeybindingWarning(context);
-}
-
-async function showKeybindingWarning(context: ExtensionContext) {
-	context.globalState?.setKeysForSync([
-		'keyBindingWarningShown'
-	]);
-	const gotIt = "OK, Got It";
-	const learnMore = "Learn More";
-
-	const warningShown = context.globalState.get<boolean>('keyBindingWarningShown');
-	if (!warningShown) {
-		const result = await window.showWarningMessage("The key bindings of the npm-scripts extension have changed!", learnMore, gotIt);
-		if (result === gotIt) {
-			context.globalState.update('keyBindingWarningShown', true);
-		} else if (result === learnMore) {
-			env.openExternal(Uri.parse('https://github.com/microsoft/vscode-npm-scripts#keyboard-shortcuts'));
-		}
-	}
 }
 
 export function deactivate() {
@@ -316,6 +296,22 @@ function validateAllDocuments() {
 }
 
 function registerCommands(context: ExtensionContext) {
+	async function showKeybindingsChangedWarning(): Promise<void> {
+		const configuration = workspace.getConfiguration();
+
+		// this should not happen since the command should only be available when the setting is false
+		if (configuration.get<boolean>("npm.keybindingsChangedWarningShown", false)) {
+			return;
+		};
+		const gotIt = "OK, Got It";
+		const learnMore = "Learn More";
+		const result = await window.showInformationMessage("The key bindings of the npm-scripts extension have changed!", { 'modal': true}, learnMore, gotIt);
+		if (result === learnMore) {
+			env.openExternal(Uri.parse('https://github.com/microsoft/vscode-npm-scripts#keyboard-shortcuts'));
+		}
+		await configuration.update('npm.keybindingsChangedWarningShown', true, ConfigurationTarget.Global);
+	}
+
 	context.subscriptions.push(
 		commands.registerCommand('npm-script.install', runNpmInstall),
 		commands.registerCommand('npm-script.init', runNpmInit),
@@ -330,7 +326,8 @@ function registerCommands(context: ExtensionContext) {
 		commands.registerCommand('npm-script.installInOutputWindow', runNpmInstallInOutputWindow),
 		commands.registerCommand('npm-script.uninstallInOutputWindow', runNpmUninstallInOutputWindow),
 		commands.registerCommand('npm-script.validate', validateAllDocuments),
-		commands.registerCommand('npm-script.terminate-script', terminateScript)
+		commands.registerCommand('npm-script.terminate-script', terminateScript),
+		commands.registerCommand('npm-script.showKeybindingsChangedWarning', showKeybindingsChangedWarning)
 	);
 }
 

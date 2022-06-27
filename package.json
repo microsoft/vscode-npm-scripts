@@ -34,6 +34,7 @@
 	],
 	"activationEvents": [
 		"onLanguage:json",
+		"onCommand:npm-script.showKeybindingsChangedWarning",
 		"onCommand:npm-script.install",
 		"onCommand:npm-script.run",
 		"onCommand:npm-script.showOutput",
@@ -141,6 +142,12 @@
 		},
 		"keybindings": [
 			{
+				"command": "npm-script.showKeybindingsChangedWarning",
+				"key": "Ctrl+R",
+				"mac": "Cmd+R",
+				"when": "!config.npm.keybindingsChangedWarningShown"
+			},
+			{
 				"command": "npm-script.showOutput",
 				"key": "Ctrl+R L",
 				"mac": "Cmd+R L",
@@ -238,6 +245,12 @@
 					"scope": "resource",
 					"default": true,
 					"description": "Enable the old cmd/ctrl R chording key bindings."
+				},
+				"npm.keybindingsChangedWarningShown": {
+					"type": "boolean",
+					"scope": "application",
+					"default": false,
+					"description": "Show a warning that the keybindings have changed."
 				}
 			}
 		}
