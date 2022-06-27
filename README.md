@@ -72,9 +72,9 @@ This extension originally defined a chording keyboard shortcut for the `R` key. 
 | Command     | Old         | New       |
 | ----------- | ----------- |-----------|
 | Rerun last script | `CMD+R R` | `CMD+K L` |
-| Select script to run | `CMD+R SHIFT+R` | `CMD+K SHIFT+R` |
-| Terminate running script | `CMD+R SHIFT+X` | `CMD+K SHIFT+X` |
-| Run test script | `CMD+R T` | `CMD+K T` |
+| Select a script to run | `CMD+R SHIFT+R` | `CMD+K SHIFT+R` |
+| Terminate the running script | `CMD+R SHIFT+X` | `CMD+K SHIFT+X` |
+| Run the test script | `CMD+R T` | `CMD+K T` |
 
 If you prefer the old keybindings starting with `R` you can define the setting `npm.oldKeybindings.enable` to `true`.
 

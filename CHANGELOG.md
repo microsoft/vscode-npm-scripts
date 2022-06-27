@@ -1,4 +1,5 @@
 # vscode-npm-scripts Changelog
+- 0.3.26 [#171](https://github.com/Microsoft/vscode-npm-scripts/issues/171) Change the keybindings to not use the R as their chording character
 - 0.3.25 Address github reported vulnerabilities.
 - 0.3.24 Update the `thirdpartynotices.txt` file.
 - 0.3.23 Address github reported vulnerabilities.
@@ -11,7 +12,7 @@
 - 0.3.16 Update dependencies and fix the CVE link below.
 - 0.3.15 Fix [CVE-2021-26700](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-26700)
 - 0.3.14 Add badges to README.md
-- 0.3.13 Fix for [#129](https://github.com/Microsoft/vscode-npm-scripts/issues/#129) Add !terminalFocus to keyboard extensions that use Ctrl + R
+- 0.3.13 Fix for [#129](https://github.com/Microsoft/vscode-npm-scripts/issues/129) Add !terminalFocus to keyboard extensions that use Ctrl + R
 - 0.3.12 Address github reported vulnerabilities.
 - 0.3.11 Address github reported vulnerabilities. Migrate from tslint to eslint.
 - 0.3.10 Address github reported vulnerabilities.
@@ -19,8 +20,8 @@
 - 0.3.8 Address github reported vulnerabilities.
 - 0.3.7 Add setting `npm.enableTouchbar` to control whether npm commands should be shown in the touchbar.
 - 0.3.6 Add Macbook-Pro's touch bar support
-- 0.3.5 add support for running `npm audit` [#62](https://github.com/Microsoft/vscode-npm-scripts/issues/#62) Handle no scripts found gracefully
-- 0.3.4 fix for [#60](https://github.com/Microsoft/vscode-npm-scripts/issues/#60) Handle no scripts found gracefully
+- 0.3.5 add support for running `npm audit` [#62](https://github.com/Microsoft/vscode-npm-scripts/issues/62) Handle no scripts found gracefully
+- 0.3.4 fix for [#60](https://github.com/Microsoft/vscode-npm-scripts/issues/60) Handle no scripts found gracefully
 - 0.3.3 fix for [#46](https://github.com/Microsoft/vscode-npm-scripts/issues/46) Cannot read property 'uri' of undefined
 - 0.3.1 fix for [#44](https://github.com/Microsoft/vscode-npm-scripts/issues/44) Exception when the workspace contains a root folder with another scheme than 'file'
 - 0.3.0 support multiple root folders
