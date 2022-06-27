@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "npm support for VS Code",
 	"displayName": "npm",
-	"version": "0.3.25",
+	"version": "0.3.26",
 	"publisher": "eg2",
 	"icon": "npm_icon.png",
 	"engines": {
@@ -34,6 +34,7 @@
 	],
 	"activationEvents": [
 		"onLanguage:json",
+		"onCommand:npm-script.showKeybindingsChangedWarning",
 		"onCommand:npm-script.install",
 		"onCommand:npm-script.run",
 		"onCommand:npm-script.showOutput",
@@ -141,34 +142,64 @@
 		},
 		"keybindings": [
 			{
+				"command": "npm-script.showKeybindingsChangedWarning",
+				"key": "Ctrl+R",
+				"mac": "Cmd+R",
+				"when": "!config.npm.keybindingsChangedWarningShown"
+			},
+			{
 				"command": "npm-script.showOutput",
 				"key": "Ctrl+R L",
 				"mac": "Cmd+R L",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.run",
 				"key": "Ctrl+R Shift+R",
 				"mac": "Cmd+R Shift+R",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.rerun-last-script",
 				"key": "Ctrl+R R",
 				"mac": "Cmd+R R",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.terminate-script",
 				"key": "Ctrl+R Shift+X",
 				"mac": "Cmd+R Shift+X",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.test",
 				"key": "Ctrl+R T",
 				"mac": "Cmd+R T",
-				"when": "!terminalFocus"
+				"when": "!terminalFocus && config.npm.oldKeybindings.enable"
+			},
+			{
+				"command": "npm-script.run",
+				"key": "Ctrl+K Shift+R",
+				"mac": "Cmd+K Shift+R",
+				"when": "!config.npm.oldKeybindings.enable"
+			},
+			{
+				"command": "npm-script.rerun-last-script",
+				"key": "Ctrl+K L",
+				"mac": "Cmd+K  L",
+				"when": "!config.npm.oldKeybindings.enable"
+			},
+			{
+				"command": "npm-script.terminate-script",
+				"key": "Ctrl+K Shift+X",
+				"mac": "Cmd+K Shift+X",
+				"when": "!config.npm.oldKeybindings.enable"
+			},
+			{
+				"command": "npm-script.test",
+				"key": "Ctrl+K T",
+				"mac": "Cmd+K T",
+				"when": "!config.npm.oldKeybindings.enable"
 			}
 		],
 		"configuration": {
@@ -208,6 +239,18 @@
 					"scope": "resource",
 					"default": false,
 					"description": "Enable npm commands in the macOS touchbar."
+				},
+				"npm.oldKeybindings.enable": {
+					"type": "boolean",
+					"scope": "resource",
+					"default": true,
+					"description": "Enable the old cmd/ctrl R chording key bindings."
+				},
+				"npm.keybindingsChangedWarningShown": {
+					"type": "boolean",
+					"scope": "application",
+					"default": false,
+					"description": "Show a warning that the keybindings have changed."
 				}
 			}
 		}
@@ -222,7 +265,7 @@
 	"devDependencies": {
 		"@types/mocha": "^2.2.32",
 		"@types/node": "^7.0.43",
-		"@types/vscode": "^1.44.0",
+		"@types/vscode": "^1.66.0",
 		"@typescript-eslint/eslint-plugin": "^2.18.0",
 		"@typescript-eslint/parser": "^2.18.0",
 		"eslint": "^8.0.1",
