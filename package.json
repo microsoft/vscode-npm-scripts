@@ -33,7 +33,6 @@
 		"multi-root ready"
 	],
 	"activationEvents": [
-		"onLanguage:json",
 		"onCommand:npm-script.showKeybindingsChangedWarning",
 		"onCommand:npm-script.install",
 		"onCommand:npm-script.run",
