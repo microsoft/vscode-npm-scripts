@@ -250,7 +250,7 @@ function runNpmStart() {
 }
 
 function runNpmBuild() {
-	runNpmCommandInPackages(['build'], true);
+	runNpmCommandInPackages(['run', 'build'], true);
 }
 
 function runNpmAudit() {
