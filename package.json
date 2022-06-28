@@ -145,7 +145,7 @@
 				"command": "npm-script.showKeybindingsChangedWarning",
 				"key": "Ctrl+R",
 				"mac": "Cmd+R",
-				"when": "!config.npm.keybindingsChangedWarningShown"
+				"when": "!config.npm.keybindingsChangedWarningShown && !config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.showOutput",

@@ -303,9 +303,8 @@ function registerCommands(context: ExtensionContext) {
 		if (configuration.get<boolean>("npm.keybindingsChangedWarningShown", false)) {
 			return;
 		};
-		const gotIt = "OK, Got It";
 		const learnMore = "Learn More";
-		const result = await window.showInformationMessage("The key bindings of the npm-scripts extension have changed!", { 'modal': true}, learnMore, gotIt);
+		const result = await window.showInformationMessage("The key bindings of the 'npm-scripts' extension have changed!", { 'modal': true}, learnMore);
 		if (result === learnMore) {
 			env.openExternal(Uri.parse('https://github.com/microsoft/vscode-npm-scripts#keyboard-shortcuts'));
 		}
