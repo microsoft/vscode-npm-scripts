@@ -3,15 +3,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import {
-	window, commands, workspace, languages, OutputChannel, ExtensionContext, ViewColumn,
-	QuickPickItem, Terminal, DiagnosticCollection, Diagnostic, Range, TextDocument, DiagnosticSeverity,
-	CodeActionProvider, CodeActionContext, CancellationToken, Command, Uri, ConfigurationTarget, env
+	window, commands, workspace, OutputChannel, ExtensionContext, ViewColumn,
+	QuickPickItem, Terminal, Uri, ConfigurationTarget, env
 } from 'vscode';
 
 import { runInTerminal } from 'run-in-terminal';
 import { kill } from 'tree-kill';
-import { parseTree, Node, ParseError } from 'jsonc-parser';
-import { ThrottledDelayer } from './async';
 
 interface Script extends QuickPickItem {
 	scriptName: string;
@@ -28,48 +25,6 @@ class ProcessItem implements QuickPickItem {
 	constructor(public label: string, public description: string, public pid: number) { }
 }
 
-interface SourceRange {
-	name: {
-		offset: number;
-		length: number;
-	};
-}
-
-interface SourceRangeWithVersion extends SourceRange {
-	version: {
-		offset: number;
-		length: number;
-	};
-}
-
-interface DependencySourceRanges {
-	[dependency: string]: SourceRangeWithVersion;
-}
-
-interface PropertySourceRanges {
-	[dependency: string]: SourceRange;
-}
-
-interface SourceRanges {
-	properties: PropertySourceRanges;
-	dependencies: DependencySourceRanges;
-}
-
-interface NpmDependencyReport {
-	[dependency: string]: {
-		version?: string;
-		invalid?: boolean;
-		extraneous?: boolean;
-		missing?: boolean;
-	};
-}
-
-interface NpmListReport {
-	invalid?: boolean;
-	problems?: string[];
-	dependencies?: NpmDependencyReport;
-}
-
 interface ScriptCommandDescription {
 	absolutePath: string;
 	relativePath: string | undefined; // path relative to workspace root, if there is a root
@@ -81,106 +36,14 @@ interface CommandArgument {
 	fsPath: string;
 }
 
-class NpmCodeActionProvider implements CodeActionProvider {
-	public provideCodeActions(document: TextDocument, _range: Range, context: CodeActionContext, _token: CancellationToken): Command[] {
-		function addFixNpmInstallModule(cmds: Command[], moduleName: string) {
-			cmds.push({
-				title: `run: npm install '${moduleName}'`,
-				command: 'npm-script.installInOutputWindow',
-				arguments: [path.dirname(document.fileName), moduleName]
-			});
-		}
-
-		function addFixNpmInstall(cmds: Command[]) {
-			cmds.push({
-				title: `run: npm install`,
-				command: 'npm-script.installInOutputWindow',
-				arguments: [path.dirname(document.fileName)]
-			});
-		}
-
-		function addFixValidate(cmds: Command[]) {
-			cmds.push({
-				title: `validate installed modules`,
-				command: 'npm-script.validate',
-				arguments: [path.dirname(document.fileName)]
-			});
-		}
-
-		function addFixNpmUninstallModule(cmds: Command[], moduleName: string) {
-			cmds.push({
-				title: `run: npm uninstall '${moduleName}'`,
-				command: 'npm-script.uninstallInOutputWindow',
-				arguments: [path.dirname(document.fileName), moduleName]
-			});
-		}
-
-		function addFixNpmInstallModuleSave(cmds: Command[], moduleName: string) {
-			cmds.push({
-				title: `run: npm install '${moduleName}' --save`,
-				command: 'npm-script.installInOutputWindow',
-				arguments: [path.dirname(document.fileName), moduleName, '--save']
-			});
-		}
-
-		function addFixNpmInstallModuleSaveDev(cmds: Command[], moduleName: string) {
-			cmds.push({
-				title: `run: npm install '${moduleName}' --save-dev`,
-				command: 'npm-script.installInOutputWindow',
-				arguments: [path.dirname(document.fileName), moduleName, '--save-dev']
-			});
-		}
-
-		const cmds: Command[] = [];
-		context.diagnostics.forEach(diag => {
-			if (diag.source === 'npm') {
-				let result = /^Module '(\S*)' is not installed/.exec(diag.message);
-				if (result) {
-					const moduleName = result[1];
-					addFixNpmInstallModule(cmds, moduleName);
-					addFixNpmInstall(cmds);
-					addFixValidate(cmds);
-					return;
-				}
-				result = /^Module '(\S*)' the installed version/.exec(diag.message);
-				if (result) {
-					const moduleName = result[1];
-					addFixNpmInstallModule(cmds, moduleName);
-					addFixValidate(cmds);
-					return;
-				}
-				result = /^Module '(\S*)' is extraneous/.exec(diag.message);
-				if (result) {
-					const moduleName = result[1];
-					addFixNpmUninstallModule(cmds, moduleName);
-					addFixNpmInstallModuleSave(cmds, moduleName);
-					addFixNpmInstallModuleSaveDev(cmds, moduleName);
-					addFixValidate(cmds);
-					return;
-				}
-			}
-		});
-		return cmds;
-	}
-}
-
 const runningProcesses: Map<number, Process> = new Map();
 
 let outputChannel: OutputChannel;
 let terminal: Terminal | null = null;
 let lastScript: Script | null = null;
-let diagnosticCollection: DiagnosticCollection | null = null;
-let delayer: ThrottledDelayer<void> | null = null;
 
 export function activate(context: ExtensionContext) {
 	registerCommands(context);
-
-	diagnosticCollection = languages.createDiagnosticCollection('npm-script-runner');
-	context.subscriptions.push(diagnosticCollection);
-
-	workspace.onDidChangeConfiguration(_event => loadConfiguration(context), null, context.subscriptions);
-	loadConfiguration(context);
-
 
 	outputChannel = window.createOutputChannel('npm');
 	context.subscriptions.push(outputChannel);
@@ -191,108 +54,12 @@ export function activate(context: ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(languages.registerCodeActionsProvider({ language: 'json', scheme: 'file' }, new NpmCodeActionProvider()));
 }
 
 export function deactivate() {
 	if (terminal) {
 		terminal.dispose();
 	}
-}
-
-function clearDiagnosticCollection() {
-	if (diagnosticCollection) {
-		diagnosticCollection.clear();
-	}
-}
-
-function isValidationEnabled(document: TextDocument) {
-	const section = workspace.getConfiguration('npm', document.uri);
-	if (section) {
-		return section.get<boolean>('validate.enable', true);
-	}
-	return false;
-}
-
-function loadConfiguration(context: ExtensionContext): void {
-
-	clearDiagnosticCollection();
-
-	workspace.onDidSaveTextDocument(document => {
-		if (isValidationEnabled(document)) {
-			validateDocument(document);
-		}
-	}, null, context.subscriptions);
-	window.onDidChangeActiveTextEditor(editor => {
-		if (editor && editor.document && isValidationEnabled(editor.document)) {
-			validateDocument(editor.document);
-		}
-	}, null, context.subscriptions);
-
-	// remove markers on close
-	workspace.onDidCloseTextDocument(_document => {
-		clearDiagnosticCollection();
-	}, null, context.subscriptions);
-
-	// workaround for onDidOpenTextDocument
-	// workspace.onDidOpenTextDocument(document => {
-	// 	console.log("onDidOpenTextDocument ", document.fileName);
-	// 	validateDocument(document);
-	// }, null, context.subscriptions);
-	validateAllDocuments();
-}
-
-async function validateDocument(document: TextDocument) {
-	//console.log('validateDocument ', document.fileName);
-
-	// do not validate yarn managed node_modules
-	if (!isValidationEnabled(document) || await isYarnManaged(document)) {
-		clearDiagnosticCollection();
-		return;
-	}
-	if (!isPackageJson(document)) {
-		return;
-	}
-	// Iterate over the defined package directories to check
-	// if the currently opened `package.json` is one that is included in the `includedDirectories` setting.
-	const found = getAllIncludedDirectories().find(each => path.dirname(document.fileName) === each);
-	if (!found) {
-		return;
-	}
-	if (!delayer) {
-		delayer = new ThrottledDelayer<void>(200);
-	}
-	delayer.trigger(() => doValidate(document));
-}
-
-function isPackageJson(document: TextDocument) {
-	return document && path.basename(document.fileName) === 'package.json';
-}
-
-async function isYarnManaged(document: TextDocument): Promise<boolean> {
-	return new Promise<boolean>((resolve, _reject) => {
-		const workspaceFolder = workspace.getWorkspaceFolder(document.uri);
-		if (workspaceFolder) {
-			const root = workspaceFolder.uri.scheme === 'file'? workspaceFolder.uri.fsPath : undefined;
-			if (!root) {
-				return resolve(false);
-			}
-			fs.stat(path.join(root, 'yarn.lock'), (err, _stat) => {
-				return resolve(err === null);
-			});
-		}
-	});
-}
-
-function validateAllDocuments() {
-	// TODO: why doesn't this not work?
-	//workspace.textDocuments.forEach(each => validateDocument(each));
-
-	window.visibleTextEditors.forEach(each => {
-		if (each.document) {
-			validateDocument(each.document);
-		}
-	});
 }
 
 function registerCommands(context: ExtensionContext) {
@@ -324,7 +91,6 @@ function registerCommands(context: ExtensionContext) {
 		commands.registerCommand('npm-script.outdated', runNpmOutdated),
 		commands.registerCommand('npm-script.installInOutputWindow', runNpmInstallInOutputWindow),
 		commands.registerCommand('npm-script.uninstallInOutputWindow', runNpmUninstallInOutputWindow),
-		commands.registerCommand('npm-script.validate', validateAllDocuments),
 		commands.registerCommand('npm-script.terminate-script', terminateScript),
 		commands.registerCommand('npm-script.showKeybindingsChangedWarning', showKeybindingsChangedWarning)
 	);
@@ -572,173 +338,6 @@ function commandsDescriptions(command: string[], dirs: string[] | undefined): Sc
 	return descriptions;
 }
 
-async function doValidate(document: TextDocument) {
-	let report = null;
-
-	let documentWasClosed = false; // track whether the document was closed while getInstalledModules/'npm ls' runs
-	const listener = workspace.onDidCloseTextDocument(doc => {
-		if (doc.uri === document.uri) {
-			documentWasClosed = true;
-		}
-	});
-
-	try {
-		report = await getInstalledModules(path.dirname(document.fileName));
-	} catch (e) {
-		listener.dispose();
-		return;
-	}
-	try {
-		clearDiagnosticCollection();
-
-		if (report.invalid && report.invalid === true) {
-			return;
-		}
-		if (!anyModuleErrors(report)) {
-			return;
-		}
-		if (documentWasClosed || !document.getText()) {
-			return;
-		}
-		const sourceRanges = parseSourceRanges(document.getText());
-		const dependencies = report.dependencies;
-		if (!dependencies) {
-			return;
-		}
-		const diagnostics: Diagnostic[] = [];
-		for (const moduleName in dependencies) {
-			if (dependencies.hasOwnProperty(moduleName)) {
-				const diagnostic = getDiagnostic(document, report, moduleName, sourceRanges);
-				if (diagnostic) {
-					diagnostic.source = 'npm';
-					diagnostics.push(diagnostic);
-				}
-			}
-		}
-		//console.log("diagnostic count ", diagnostics.length, " ", document.uri.fsPath);
-		diagnosticCollection!.set(document.uri, diagnostics);
-	} catch (e) {
-		window.showInformationMessage(`[npm-script-runner] Cannot validate the package.json ` + e);
-		console.log(`npm-script-runner: 'error while validating package.json stacktrace: ${e.stack}`);
-	}
-}
-
-function parseSourceRanges(text: string): SourceRanges {
-	const definedDependencies: DependencySourceRanges = {};
-	const properties: PropertySourceRanges = {};
-	const errors: ParseError[] = [];
-	const node = parseTree(text, errors);
-
-	if (node.children) {
-		node.children.forEach(child => {
-			const children = child.children;
-			if (children) {
-				const property = children[0];
-				properties[property.value] = {
-					name: {
-						offset: property.offset,
-						length: property.length
-					}
-				};
-				if (children && children.length === 2 && isDependency(children[0].value)) {
-					collectDefinedDependencies(definedDependencies, children[1]);
-				}
-			}
-		});
-	}
-	return {
-		dependencies: definedDependencies,
-		properties: properties
-	};
-}
-
-function getDiagnostic(document: TextDocument, report: NpmListReport, moduleName: string, ranges: SourceRanges): Diagnostic | null {
-	let diagnostic = null;
-
-	// npm list only reports errors against 'dependencies' and not against 'devDependencies'
-	if (report.dependencies && report.dependencies[moduleName]) {
-		if (report.dependencies[moduleName]['missing'] === true) {
-			if (ranges.dependencies[moduleName]) {
-				const source = ranges.dependencies[moduleName].name;
-				const range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-				diagnostic = new Diagnostic(range, `Module '${moduleName}' is not installed`, DiagnosticSeverity.Warning);
-			} else {
-				console.log(`[npm-script] Could not locate "missing" dependency '${moduleName}' in package.json`);
-			}
-		}
-		else if (report.dependencies[moduleName]['invalid'] === true) {
-			if (ranges.dependencies[moduleName]) {
-				const source = ranges.dependencies[moduleName].version;
-				const installedVersion = report.dependencies[moduleName]['version'];
-				const range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-				const message = installedVersion ?
-					`Module '${moduleName}' the installed version '${installedVersion}' is invalid` :
-					`Module '${moduleName}' the installed version is invalid or has errors`;
-				diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
-			} else {
-				console.log(`[npm-script] Could not locate "invalid" dependency '${moduleName}' in package.json`);
-			}
-		}
-		else if (report.dependencies[moduleName]['extraneous'] === true) {
-			const source = findAttributeRange(ranges);
-			const range = new Range(document.positionAt(source.offset), document.positionAt(source.offset + source.length));
-			diagnostic = new Diagnostic(range, `Module '${moduleName}' is extraneous`, DiagnosticSeverity.Warning);
-		}
-	}
-	return diagnostic;
-}
-
-function findAttributeRange(ranges: SourceRanges): { offset: number; length: number } {
-	let source = null;
-	if (ranges.properties['dependencies']) {
-		source = ranges.properties['dependencies'].name;
-	} else if (ranges.properties['devDependencies']) {
-		source = ranges.properties['devDependencies'].name;
-	} else if (ranges.properties['name']) {
-		source = ranges.properties['name'].name;
-	} else {
-		// no attribute found in the package.json to attach the diagnostic, therefore just attach the diagnostic to the top of the file
-		source = { offset: 0, length: 1 };
-	}
-	return source;
-}
-
-function anyModuleErrors(report: NpmListReport): boolean {
-	const problems: string[] | undefined = report['problems'];
-	if (problems) {
-		return problems.find(each => {
-			return each.startsWith('missing:') || each.startsWith('invalid:') || each.startsWith('extraneous:');
-		}) !== undefined;
-	}
-	return false;
-}
-
-function collectDefinedDependencies(dependencies: DependencySourceRanges, node: Node | undefined) {
-	if (!node || !node.children) {
-		return;
-	}
-	node.children.forEach(child => {
-		if (child.type === 'property' && child.children && child.children.length === 2) {
-			const dependencyName = child.children[0];
-			const version = child.children[1];
-			dependencies[dependencyName.value] = {
-				name: {
-					offset: dependencyName.offset,
-					length: dependencyName.length
-				},
-				version: {
-					offset: version.offset,
-					length: version.length
-				}
-			};
-		}
-	});
-}
-
-function isDependency(value: string) {
-	return value === 'dependencies' || value === 'devDependencies';
-}
-
 function showNpmOutput(): void {
 	outputChannel.show(ViewColumn.Three);
 }
@@ -764,27 +363,6 @@ function terminateScript(): void {
 	}
 }
 
-async function getInstalledModules(package_dir: string): Promise<NpmListReport> {
-	return new Promise<NpmListReport>((resolve, reject) => {
-		const cmd = getNpmBin() + ' ' + 'ls --depth 0 --json';
-		let jsonResult = '';
-		let errors = '';
-
-		const p = cp.exec(cmd, { cwd: package_dir, env: process.env });
-
-		p.stderr.on('data', (chunk: string) => errors += chunk);
-		p.stdout.on('data', (chunk: string) => jsonResult += chunk);
-		p.on('close', (_code: number, _signal: string) => {
-			try {
-				const resp: NpmListReport = JSON.parse(jsonResult);
-				resolve(resp);
-			} catch (e) {
-				reject(e);
-			}
-		});
-	});
-}
-
 function runCommandInOutputWindow(args: string[], cwd: string | undefined) {
 	const cmd = getNpmBin() + ' ' + args.join(' ');
 	const p = cp.exec(cmd, { cwd: cwd, env: process.env });
@@ -808,7 +386,6 @@ function runCommandInOutputWindow(args: string[], cwd: string | undefined) {
 			outputChannel.appendLine('-----------------------');
 			outputChannel.appendLine('');
 		}
-		validateAllDocuments();
 	});
 
 	showNpmOutput();

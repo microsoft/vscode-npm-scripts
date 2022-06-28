@@ -5,20 +5,9 @@
 ![average user rating](https://vsmarketplacebadge.apphb.com/rating/eg2.vscode-npm-script.svg)
 ![license](https://img.shields.io/github/license/microsoft/vscode-npm-scripts.svg)
 
-This extension supports running npm scripts defined in the `package.json` file and validating the installed modules
-against the dependencies defined in the `package.json`.
+This extension supports running npm scripts defined in the `package.json` file.
 
-**Notice** The validation is done by running `npm` and it is not run when the modules are managed by `yarn`.
-
-The `package.json` validation reports warnings for modules:
-
-- that are defined in the package.json, but that are not installed
-- that are installed but not defined in the package.json
-- that are installed but do not satisfy the version defined in the package.json.
-
-Quick fixes to run `npm` are provided for reported warnings.
-
-![package.json validation](images/validation.png)
+**Notice** support for running npm scripts is now provided by VS Code and this extension should no longer be needed. Please the documentation on [task auto detection](https://code.visualstudio.com/Docs/editor/tasks#_task-autodetection).
 
 Commands for running scripts are available the `npm` category.
 
