@@ -1,6 +1,8 @@
 # vscode-npm-scripts Changelog
-- 0.3.26 [#171](https://github.com/Microsoft/vscode-npm-scripts/issues/171) Change the keybindings to not use the R as their chording character
-		[#172](https://github.com/Microsoft/vscode-npm-scripts/issues/172) Remove support for module validation
+- 0.3.26
+	- [#171](https://github.com/Microsoft/vscode-npm-scripts/issues/171) Change the keybindings to not use the R as their chording character
+	- [#172](https://github.com/Microsoft/vscode-npm-scripts/issues/172) Remove support for module validation
+	- [#174](https://github.com/Microsoft/vscode-npm-scripts/issues/174) The terminal's cmd+k keybinding doesn't work
 - 0.3.25 Address github reported vulnerabilities.
 - 0.3.24 Update the `thirdpartynotices.txt` file.
 - 0.3.23 Address github reported vulnerabilities.

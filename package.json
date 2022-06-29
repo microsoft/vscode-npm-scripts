@@ -228,12 +228,6 @@
 					"default": "npm",
 					"description": "npm bin name"
 				},
-				"npm.validate.enable": {
-					"type": "boolean",
-					"scope": "resource",
-					"default": true,
-					"description": "Validate installed modules"
-				},
 				"npm.enableTouchbar": {
 					"type": "boolean",
 					"scope": "resource",

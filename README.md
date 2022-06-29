@@ -7,19 +7,21 @@
 
 This extension supports running npm scripts defined in the `package.json` file.
 
-**Notice** support for running npm scripts is now provided by VS Code and this extension should no longer be needed. Please the documentation on [task auto detection](https://code.visualstudio.com/Docs/editor/tasks#_task-autodetection).
+**Notice** support for running npm scripts is now provided by VS Code and this extension should no longer be needed. You can run npm scripts as tasks using [task auto detection](https://code.visualstudio.com/Docs/editor/tasks#_task-autodetection) or from the [npm scripts explorer](https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_run-npm-scripts-as-tasks-from-the-explorer).
+
+## Commands
 
 Commands for running scripts are available the `npm` category.
 
-![command palette](images/cmds.png)
-
-- Run npm install, also available in the context menu of the explorer when the `package.json` file
 - Run a script (`npm run-script`) defined in the `package.json` by picking a script
   defined in the `scripts` section of the `package.json`.
 - Rerun the last npm script you have executed using this extension.
+- Run npm install, also available in the context menu of the explorer when the `package.json` file
 - Terminate a running script
 
 The scripts can be run either in the integrated terminal or an output window.
+
+## Touch bar
 
 Support for Macbook Pro touch bar. You can run the following commands:
 
@@ -32,7 +34,6 @@ Support for Macbook Pro touch bar. You can run the following commands:
 
 ## Settings
 
-- `npm.validate.enable` validate the dependencies in the `package.json` file, the default is `true`.
 - `npm.runInTerminal` defines whether the command is run
   in a terminal window or whether the output form the command is shown in the `Output` window. The default is to show the output in the terminal.
 - `npm.includeDirectories` define additional directories that include a `package.json`.
