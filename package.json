@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "npm support for VS Code",
 	"displayName": "npm",
-	"version": "0.3.26",
+	"version": "0.3.27",
 	"publisher": "eg2",
 	"license": "MIT",
 	"icon": "npm_icon.png",
@@ -181,25 +181,25 @@
 				"command": "npm-script.run",
 				"key": "Ctrl+K Shift+R",
 				"mac": "Cmd+K Shift+R",
-				"when": "!config.npm.oldKeybindings.enable"
+				"when": "!terminalFocus && !config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.rerun-last-script",
 				"key": "Ctrl+K L",
 				"mac": "Cmd+K  L",
-				"when": "!config.npm.oldKeybindings.enable"
+				"when": "!terminalFocus && !config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.terminate-script",
 				"key": "Ctrl+K Shift+X",
 				"mac": "Cmd+K Shift+X",
-				"when": "!config.npm.oldKeybindings.enable"
+				"when": "!terminalFocus && !config.npm.oldKeybindings.enable"
 			},
 			{
 				"command": "npm-script.test",
 				"key": "Ctrl+K T",
 				"mac": "Cmd+K T",
-				"when": "!config.npm.oldKeybindings.enable"
+				"when": "!terminalFocus && !config.npm.oldKeybindings.enable"
 			}
 		],
 		"configuration": {
