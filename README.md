@@ -5,10 +5,9 @@
 ![average user rating](https://vsmarketplacebadge.apphb.com/rating/eg2.vscode-npm-script.svg)
 ![license](https://img.shields.io/github/license/microsoft/vscode-npm-scripts.svg)
 
+> **❗IMPORTANT**: This extension has been deprecated. Support for running npm scripts is now provided by VS Code. You can run npm scripts as tasks using [task auto detection](https://code.visualstudio.com/Docs/editor/tasks#_task-autodetection) or from the [npm scripts explorer](https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_run-npm-scripts-as-tasks-from-the-explorer).
+
 This extension supports running npm scripts defined in the `package.json` file.
-
-**Notice** support for running npm scripts is now provided by VS Code and this extension should no longer be needed. You can run npm scripts as tasks using [task auto detection](https://code.visualstudio.com/Docs/editor/tasks#_task-autodetection) or from the [npm scripts explorer](https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_run-npm-scripts-as-tasks-from-the-explorer).
-
 ## Commands
 
 Commands for running scripts are available the `npm` category.
