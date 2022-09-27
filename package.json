@@ -2,7 +2,7 @@
 	"name": "vscode-npm-script",
 	"description": "npm support for VS Code",
 	"displayName": "npm",
-	"version": "0.3.28",
+	"version": "0.3.29",
 	"publisher": "eg2",
 	"license": "MIT",
 	"icon": "npm_icon.png",
