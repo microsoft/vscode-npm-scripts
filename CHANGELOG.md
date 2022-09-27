@@ -1,4 +1,5 @@
 # vscode-npm-scripts Changelog
+- 0.3.29 Address github reported vulnerabilities.
 - 0.3.28 Deprecate the extension and announce it in the README
 - 0.3.26
 	- [#171](https://github.com/Microsoft/vscode-npm-scripts/issues/171) Change the keybindings to not use the R as their chording character
