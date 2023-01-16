@@ -5,7 +5,7 @@ trigger:
     include:
       - main
   tags:
-    include: ["*"]
+    include: ['*']
 pr: none
 
 resources:
@@ -14,7 +14,7 @@ resources:
       type: github
       name: microsoft/vscode-engineering
       # ref: main
-      ref: lszomoru/sdl-improvements
+      ref: lszomoru/extension-malware
       endpoint: Monaco
 
 parameters:
