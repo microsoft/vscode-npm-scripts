@@ -14,7 +14,7 @@ resources:
       type: github
       name: microsoft/vscode-engineering
       # ref: main
-      ref: lszomoru/extension-malware
+      ref: lszomoru/sdl-policheck
       endpoint: Monaco
 
 parameters:
