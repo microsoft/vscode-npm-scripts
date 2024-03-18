@@ -33,4 +33,4 @@ extends:
         serviceTreeID: 'c8cb03c6-176e-40dd-90a5-518de08666dc'
       enabled: true
 
-  publishExtension: ${{ parameters.publishExtension }}
+    publishExtension: ${{ parameters.publishExtension }}
